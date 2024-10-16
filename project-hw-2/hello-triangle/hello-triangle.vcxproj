@@ -142,6 +142,13 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="hello_triangle_indexed.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="default_shader.frag" />
+    <None Include="default_shader.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="shader.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
