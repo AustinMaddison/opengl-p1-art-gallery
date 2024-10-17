@@ -30,8 +30,8 @@
     <None Include="default_fill_shader.frag" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="shader.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="mylib.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

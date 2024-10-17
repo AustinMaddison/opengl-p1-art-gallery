@@ -14,7 +14,7 @@ void createBox(float center[3], float width, float height, float depth, Mesh *me
 const unsigned int SCR_WIDTH = 600;
 const unsigned int SCR_HEIGHT = 600;
 
-RenderMode RENDER_MODE = WIREFRAME;
+RenderMode RENDER_MODE = BOTH;
 bool BUTTON_TRIGGERED_ONCE = false;
 
 int main()
@@ -23,6 +23,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "box", NULL, NULL);
     if (window == NULL)
@@ -51,16 +52,13 @@ int main()
     mesh.addShaderLine(&wireframe_shader);
     mesh.initialize();
 
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable (GL_BLEND);
-
-	glEnable (GL_LINE_SMOOTH);
-	glHint (GL_LINE_SMOOTH_HINT, GL_NICEST);
-
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glEnable(GL_LINE_SMOOTH);
+    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glPointSize(10.0f);
     glLineWidth(2.0f);
-
-    // render loop
+    
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
@@ -92,7 +90,6 @@ void createBox(float center[3], float width, float height, float depth, Mesh *me
         7, 4, 0, 7, 3, 0, // Left face
         6, 5, 1, 1, 2, 6, // Right face
         4, 5, 1, 1, 0, 4, // Bottom face
-        2, 3, 6, 3, 7, 6,  // Top face
         2, 3, 6, 3, 7, 6,  // Top face
     };
 
