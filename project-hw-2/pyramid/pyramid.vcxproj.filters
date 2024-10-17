@@ -18,7 +18,7 @@
     <ClCompile Include="glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Lab3_box.cpp">
+    <ClCompile Include="Lab3_pyramid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -30,8 +30,8 @@
     <None Include="default_fill_shader.frag" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="mylib.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="shader.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

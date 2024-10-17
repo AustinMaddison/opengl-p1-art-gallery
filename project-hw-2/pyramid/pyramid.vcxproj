@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{49aba8ed-b935-42ed-9917-8fa94202c278}</ProjectGuid>
-    <RootNamespace>box</RootNamespace>
+    <ProjectGuid>{eec18d4b-9c12-4593-9945-06850ba4b0f3}</ProjectGuid>
+    <RootNamespace>pyramid</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -144,7 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="glad.c" />
-    <ClCompile Include="Lab3_box.cpp" />
+    <ClCompile Include="Lab3_pyramid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="default_fill_shader.frag" />
@@ -152,7 +152,7 @@
     <None Include="default_shader.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="mylib.h" />
+    <ClInclude Include="shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
