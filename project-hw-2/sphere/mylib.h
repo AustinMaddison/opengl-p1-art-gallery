@@ -18,7 +18,7 @@ enum RenderMode {
     BOTH
 };
 
-// taken from learnopengl.com
+// Shader class heavily inspired from learnopengl.com
 class Shader
 {
 public:
