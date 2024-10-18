@@ -26,9 +26,15 @@
     <None Include="default_shader.vert">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="default_fill_shader.frag" />
-    <None Include="default_point_shader.frag" />
-    <None Include="default_line_shader.frag" />
+    <None Include="default_fill_shader.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="default_line_shader.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="default_point_shader.frag">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mylib.h">

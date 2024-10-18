@@ -127,6 +127,8 @@ private:
 class Mesh
 {
 public:
+
+
     Mesh()
     {
         RenderMode renderMode = FILL;

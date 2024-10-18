@@ -18,7 +18,7 @@
     <ClCompile Include="glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Lab3_box.cpp">
+    <ClCompile Include="Lab3_sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
