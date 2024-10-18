@@ -18,6 +18,7 @@ enum RenderMode {
     BOTH
 };
 
+// taken from learnopengl.com
 class Shader
 {
 public:
@@ -108,7 +109,7 @@ private:
             if (!success)
             {
                 glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+                std::cout << "ERROR::SHADER_COMPILATION_ERROR:: " << type << ": " << infoLog;
             }
         }
         else
@@ -117,7 +118,7 @@ private:
             if (!success)
             {
                 glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+                std::cout << "ERROR::PROGRAM_LINKING_ERROR:: " << type << ": " << infoLog; 
             }
         }
     }
@@ -126,11 +127,7 @@ private:
 class Mesh
 {
 public:
-    unsigned int VBO;
-    unsigned int VAO;
-    unsigned int EBO;
 
-    RenderMode renderMode = FILL;
 
     Mesh()
     {
@@ -141,9 +138,9 @@ public:
 
     ~Mesh()
     {
-        glDeleteVertexArrays(1, &VAO);
-        glDeleteBuffers(1, &VBO);
-        glDeleteBuffers(1, &EBO);
+        glDeleteVertexArrays(1, &_VAO);
+        glDeleteBuffers(1, &_VBO);
+        glDeleteBuffers(1, &_EBO);
     }
 
     void addVertex(float v)
@@ -152,7 +149,6 @@ public:
             _vertices = std::vector<float>();
 
         _vertices.push_back(v);
-
         isDirty = true;
     }
 
@@ -176,6 +172,11 @@ public:
         _shaderLine = s;
     }
 
+    void addShaderPoint(Shader *s)
+    {
+        _shaderPoint = s;
+    }
+
     void initialize()
     {
         try 
@@ -191,16 +192,16 @@ public:
 
         if (!isDirty) return;
 
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-        glGenBuffers(1, &EBO);
+        glGenVertexArrays(1, &_VAO);
+        glGenBuffers(1, &_VBO);
+        glGenBuffers(1, &_EBO);
 
-        glBindVertexArray(VAO);
+        glBindVertexArray(_VAO);
 
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, _VBO);
         glBufferData(GL_ARRAY_BUFFER, _vertices.size()*sizeof(_vertices[0]), &_vertices[0], GL_STATIC_DRAW);
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indices.size()*sizeof(_indices[0]), &_indices[0], GL_STATIC_DRAW);
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(_vertices[0]), (void*)0);
@@ -211,6 +212,14 @@ public:
 
         isMeshIsInitialized = true;
         isDirty = false;
+    }
+
+
+    void updateUniforms()
+    {
+        _shaderFill->setFloat("uTime", glfwGetTime());
+        _shaderLine->setFloat("uTime", glfwGetTime());
+        _shaderPoint->setFloat("uTime", glfwGetTime());
     }
 
     void draw()
@@ -227,38 +236,57 @@ public:
             return;
         }
 
-        glBindVertexArray(VAO);
+        glBindVertexArray(_VAO);
 
-        switch (renderMode)
+        switch (_renderMode)
         {
         case FILL:
-            _shaderFill->setFloat("uTime", glfwGetTime());
             _shaderFill->use();
+            _shaderFill->setFloat("uTime", glfwGetTime());
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
             break;
 
         case WIREFRAME:
-            _shaderLine->setFloat("uTime", glfwGetTime());
+            
+            glDisable(GL_DEPTH_TEST); // disable depth test so that the points are rendered on top of everything
+
             _shaderLine->use();
-            glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-            glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
+            _shaderLine->setFloat("uTime", glfwGetTime());
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
+
+            _shaderPoint->use();
+            _shaderPoint->setFloat("uTime", glfwGetTime());
+            glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+            glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
+ 
+
+            glEnable(GL_DEPTH_TEST); // enable depth test again
+            
             break;
         
         case BOTH:
-            _shaderFill->setFloat("uTime", glfwGetTime());
+
             _shaderFill->use();
+            _shaderFill->setFloat("uTime", glfwGetTime());
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
 
-            _shaderLine->setFloat("uTime", glfwGetTime());
+            glDisable(GL_DEPTH_TEST); // disable depth test so that the points are rendered on top of everything
+
             _shaderLine->use();
-            glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-            glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
+            _shaderLine->setFloat("uTime", glfwGetTime());
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
+
+            _shaderPoint->use();
+            _shaderPoint->setFloat("uTime", glfwGetTime());
+            glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+            glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
+ 
+
+            glEnable(GL_DEPTH_TEST); // enable depth test again
             break;
 
         default:
@@ -266,15 +294,27 @@ public:
         }
     }
 
+    void setRenderMode(RenderMode renderMode)
+    {
+        _renderMode = renderMode;
+    }
+
 private:
+    unsigned int _VBO;
+    unsigned int _VAO;
+    unsigned int _EBO;
+
     bool isMeshIsInitialized = false;
+    bool isDirty = true;
+
     std::vector<float> _vertices;
     std::vector<int> _indices;
 
+    RenderMode _renderMode = FILL;
+
     Shader* _shaderFill = nullptr;
     Shader* _shaderLine = nullptr;
-
-    bool isDirty = true;
+    Shader* _shaderPoint = nullptr;
 };
 
-#endif // MACRO
+#endif 

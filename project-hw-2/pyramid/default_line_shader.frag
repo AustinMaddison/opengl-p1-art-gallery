@@ -30,5 +30,5 @@ void main()
     // color += vec3(fract(uTime));
     // color = hsv_to_rgb(color); 
 
-    FragColor = vec4(vec3(1.0f), 1.0f);  
+    FragColor = vec4(vec3(1.0f), 0.4f);  
 }
