@@ -1,1 +1,1 @@
-# computer-graphics-and-ar_hw
+# computer-graphics-and-ar_labs
