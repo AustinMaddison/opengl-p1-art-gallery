@@ -199,8 +199,15 @@ static void createSphere(float* center, float radius, unsigned int segments, uns
     vertices.push_back(-radius);
     vertices.push_back(0.0f);
 
-    for (auto v : vertices) {
-        mesh->addVertex(v);
+    for (int i = 0; i < vertices.size() - 2; i += 3)
+    {
+        pX = centerX + vertices[i];
+        pY = centerY + vertices[i+1];
+        pZ = centerZ + vertices[i+2];
+
+        mesh->addVertex(pX);
+        mesh->addVertex(pY);
+        mesh->addVertex(pZ);
     }
 
     // Generate Indices
@@ -239,9 +246,4 @@ static void createSphere(float* center, float radius, unsigned int segments, uns
     for (auto idx : indices) {
         mesh->addIndices(idx);
     }
-
-
-
-
-
 }
