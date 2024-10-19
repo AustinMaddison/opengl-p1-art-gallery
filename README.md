@@ -10,7 +10,7 @@
 
 
 ### Lab 3
-![box](lab3/box/box_render.mp4)
+![box](/lab3/box/box_render.mp4)
 
 
 ### Lab 3
