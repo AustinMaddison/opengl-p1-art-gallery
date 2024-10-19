@@ -10,7 +10,7 @@
 
 
 ### Lab 3
-![box](/lab3/box/box_render.mp4)
+![](https://github.com/AustinMaddison/computer-graphics-and-ar_labs/edit/main/lab3/box/box_render.mp4)
 
 
 ### Lab 3
