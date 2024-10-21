@@ -144,7 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="glad.c" />
-    <ClCompile Include="Lab3_box.cpp" />
+    <ClCompile Include="Lab4_box.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="default_fill_shader.frag" />
@@ -154,6 +154,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mylib.h" />
+    <ClInclude Include="stb_image.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="container.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

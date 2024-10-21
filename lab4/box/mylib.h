@@ -3,7 +3,13 @@
 #ifndef MYLIB
 #define MYLIB
 
+
+
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 #include <string>
 #include <fstream>
@@ -97,6 +103,9 @@ public:
         glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
     }
 
+  
+
+
 private:
 
     void checkCompileErrors(unsigned int shader, std::string type)
@@ -127,10 +136,11 @@ private:
 class Mesh
 {
 public:
-
-
     Mesh()
     {
+        _VAO = -1;
+        _VBO = -1;
+        _EBO = -1;
         RenderMode renderMode = FILL;
         Shader* _fillShader = nullptr;
         Shader* _lineShader = nullptr;
@@ -167,6 +177,32 @@ public:
         _shaderFill = s;
     }
 
+    void addTexture()
+    {
+        glGenTextures(1, &_TEXTURE_ID);
+        glBindTexture(GL_TEXTURE_2D, _TEXTURE_ID);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        int width, height, nrChannels;
+        unsigned char* data = stbi_load("container.JPG", &width, &height, &nrChannels, 0);
+
+        if (data)
+        {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            glGenerateMipmap(GL_TEXTURE_2D);
+        }
+        else
+        {
+            std::cout << "ERROR::ADDING_TEXTURE: Failed to load texture.\n" << std::endl;
+        }
+
+        stbi_image_free(data);
+    }
+
     void addShaderLine(Shader *s)
     {
         _shaderLine = s;
@@ -192,6 +228,7 @@ public:
 
         if (!isDirty) return;
 
+
         glGenVertexArrays(1, &_VAO);
         glGenBuffers(1, &_VBO);
         glGenBuffers(1, &_EBO);
@@ -204,22 +241,17 @@ public:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indices.size()*sizeof(_indices[0]), &_indices[0], GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(_vertices[0]), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(_vertices[0]), (void*)0);
         glEnableVertexAttribArray(0);
 
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(_vertices[0]), (void*)(sizeof(_vertices[0]) * 3));
+        glEnableVertexAttribArray(1);
+
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(NULL);
+        glBindVertexArray(0);
 
         isMeshIsInitialized = true;
         isDirty = false;
-    }
-
-
-    void updateUniforms()
-    {
-        _shaderFill->setFloat("uTime", glfwGetTime());
-        _shaderLine->setFloat("uTime", glfwGetTime());
-        _shaderPoint->setFloat("uTime", glfwGetTime());
     }
 
     void draw()
@@ -236,8 +268,10 @@ public:
             return;
         }
 
+        glBindTexture(GL_TEXTURE_2D, _TEXTURE_ID);
         glBindVertexArray(_VAO);
 
+        
         switch (_renderMode)
         {
         case FILL:
@@ -261,7 +295,6 @@ public:
             glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
             glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
  
-
             glEnable(GL_DEPTH_TEST); // enable depth test again
             
             break;
@@ -285,7 +318,6 @@ public:
             glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
             glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
  
-
             glEnable(GL_DEPTH_TEST); // enable depth test again
             break;
 
@@ -303,6 +335,7 @@ private:
     unsigned int _VBO;
     unsigned int _VAO;
     unsigned int _EBO;
+    unsigned int _TEXTURE_ID;
 
     bool isMeshIsInitialized = false;
     bool isDirty = true;
@@ -310,7 +343,7 @@ private:
     std::vector<float> _vertices;
     std::vector<int> _indices;
 
-    RenderMode _renderMode = FILL;
+    RenderMode _renderMode = BOTH;
 
     Shader* _shaderFill = nullptr;
     Shader* _shaderLine = nullptr;

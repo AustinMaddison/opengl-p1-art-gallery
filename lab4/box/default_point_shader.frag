@@ -1,8 +1,10 @@
 #version 330 core  
 out vec4 FragColor;
 
-in vec3 vColor;
 uniform float uTime;
+
+in vec2 vTexCoord;
+
 
 void main()  
 {  
@@ -12,5 +14,6 @@ void main()
     d = step(0.9f, d);
     float alpha = 1.0f - smoothstep(0.99f, 1.01f, dot(d, d) * 8);
 
-    FragColor = vec4(vec3(1.0f), alpha); 
+    FragColor = vec4(vec3(1.0f), alpha * 0.6); 
+    // FragColor = vec4(vTexCoord, 0.0f, alpha);  
 }

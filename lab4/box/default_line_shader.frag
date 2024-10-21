@@ -1,8 +1,10 @@
 #version 330 core  
 out vec4 FragColor;
 
-in vec3 vColor;
 uniform float uTime;
+uniform sampler2D texture0;
+
+in vec2 vTexCoord;
 
 // https://stackoverflow.com/questions/15095909/from-rgb-to-hsv-in-opengl-glsl
 // vec3 rgb_to_hsv(vec3 c)
@@ -30,5 +32,7 @@ void main()
     // color += vec3(fract(uTime));
     // color = hsv_to_rgb(color); 
 
-    FragColor = vec4(vec3(1.0f), 0.4f);  
+
+    FragColor = vec4(texture(texture0, vTexCoord).rgb + vec3(5.0f) , 0.2f);  
+    // FragColor = vec4(vTexCoord, 0.0f, 0.25f);  
 }

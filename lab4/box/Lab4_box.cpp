@@ -53,6 +53,7 @@ void run()
     Shader line_shader("default_shader.vert", "default_line_shader.frag");
     Shader point_shader("default_shader.vert", "default_point_shader.frag");
 
+    mesh.addTexture();
     mesh.addShaderFill(&fill_shader);
     mesh.addShaderLine(&line_shader);
     mesh.addShaderPoint(&point_shader);
@@ -64,6 +65,7 @@ void run()
 
         glClearColor(0.f, 0.f, 0.f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
         mesh.setRenderMode(RENDER_MODE);
         mesh.draw();
@@ -152,13 +154,30 @@ static void createBox(float *center, float sizeX, float sizeY, float sizeZ, Mesh
     float centerY = center[1];
     float centerZ = center[2];
 
+    std::vector<float> vertices = {
+        // aPos                                               aTexCoord
+        centerX - hSizeX, centerY - hSizeY, centerZ - hSizeZ, 0.0f, 0.0f, // Bottom-left-back - 0
+        centerX + hSizeX, centerY - hSizeY, centerZ - hSizeZ, 1.0f, 0.0f, // Bottom-right-back - 1
+        centerX + hSizeX, centerY + hSizeY, centerZ - hSizeZ, 1.0f, 1.0f, // Top-right-back - 2
+        centerX - hSizeX, centerY + hSizeY, centerZ - hSizeZ, 0.0f, 1.0f, // Top-left-back - 3
+        centerX - hSizeX, centerY - hSizeY, centerZ + hSizeZ, 0.0f, 0.0f, // Bottom-left-front - 4
+        centerX + hSizeX, centerY - hSizeY, centerZ + hSizeZ, 1.0f, 0.0f, // Bottom-right-front - 5
+        centerX + hSizeX, centerY + hSizeY, centerZ + hSizeZ, 1.0f, 1.0f, // Top-right-front - 6
+        centerX - hSizeX, centerY + hSizeY, centerZ + hSizeZ, 0.0f, 1.0f  // Top-left-front - 7
+    };
+
+    for (auto v : vertices)
+    {
+        mesh->addVertex(v);
+    }
+
     const std::vector<unsigned int> indices = {
         0, 1, 3, 2, 3, 1, // Back face
         4, 5, 7, 6, 7, 5, // Front face
         7, 4, 0, 7, 3, 0, // Left face
         6, 5, 1, 1, 2, 6, // Right face
         4, 5, 1, 1, 0, 4, // Bottom face
-        2, 3, 6, 3, 7, 6,  // Top face
+        2, 3, 6, 3, 7, 6, // Top face
     };
 
     for (auto v : indices) 
@@ -166,19 +185,21 @@ static void createBox(float *center, float sizeX, float sizeY, float sizeZ, Mesh
         mesh->addIndices(v);
     }
 
-    std::vector<float> vertices= {
-        centerX - hSizeX, centerY - hSizeY, centerZ - hSizeZ, // Bottom-left-back - 0
-        centerX + hSizeX, centerY - hSizeY, centerZ - hSizeZ, // Bottom-right-back - 1
-        centerX + hSizeX, centerY + hSizeY, centerZ - hSizeZ, // Top-right-back - 2
-        centerX - hSizeX, centerY + hSizeY, centerZ - hSizeZ, // Top-left-back - 3
-        centerX - hSizeX, centerY - hSizeY, centerZ + hSizeZ, // Bottom-left-front - 4
-        centerX + hSizeX, centerY - hSizeY, centerZ + hSizeZ, // Bottom-right-front - 5
-        centerX + hSizeX, centerY + hSizeY, centerZ + hSizeZ, // Top-right-front - 6
-        centerX - hSizeX, centerY + hSizeY, centerZ + hSizeZ  // Top-left-front - 7
-    };
-    
-    for (auto v : vertices) 
-    {
-        mesh->addVertex(v);
-    }
+
+    //std::vector<float> texture_coordinates = {
+    //    0.0f, 0.0f, // Bottom-left-back - 0
+    //    0.0f, 0.0f, // Bottom-right-back - 1
+    //    1.0f, 1.0f, // Top-right-back - 2
+    //    1.0f, 1.0f, // Top-left-back - 3
+    //    0.0f, 0.0f, // Bottom-left-front - 4
+    //    0.0f, 0.0f, // Bottom-right-front - 5
+    //    1.0f, 1.0f, // Top-right-front - 6
+    //    1.0f, 1.0f  // Top-left-front - 7
+    //};   
+
+    //for (auto v : texture_coordinates)
+    //{
+    //    mesh->addTextureCoordinate(v);
+    //}
+
 }
