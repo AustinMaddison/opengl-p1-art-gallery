@@ -251,3 +251,6 @@ NuGetBuild
 WiX.Toolset.DummyFile.txt
 GitHubVS.sln.DotSettings
 submission
+
+# Naphong build file
+lab4/naphong/build/*
