@@ -160,6 +160,7 @@ static void createBox(float *center, float sizeX, float sizeY, float sizeZ, Mesh
         centerX + hSizeX, centerY - hSizeY, centerZ - hSizeZ, 1.0f, 0.0f, // Bottom-right-back - 1
         centerX + hSizeX, centerY + hSizeY, centerZ - hSizeZ, 1.0f, 1.0f, // Top-right-back - 2
         centerX - hSizeX, centerY + hSizeY, centerZ - hSizeZ, 0.0f, 1.0f, // Top-left-back - 3
+
         centerX - hSizeX, centerY - hSizeY, centerZ + hSizeZ, 0.0f, 0.0f, // Bottom-left-front - 4
         centerX + hSizeX, centerY - hSizeY, centerZ + hSizeZ, 1.0f, 0.0f, // Bottom-right-front - 5
         centerX + hSizeX, centerY + hSizeY, centerZ + hSizeZ, 1.0f, 1.0f, // Top-right-front - 6

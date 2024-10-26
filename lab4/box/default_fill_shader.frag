@@ -34,5 +34,5 @@ void main()
     // color = hsv_to_rgb(color); 
 
     //FragColor = vec4(vTexCoord, 0.0f, 0.4f);  
-    FragColor = vec4(texture(texture0, vTexCoord).rgb * vec3(vTexCoord, 0.0f), 0.8f);  
+    FragColor = vec4(texture(texture0, vTexCoord).rgb, 0.8f);  
 }

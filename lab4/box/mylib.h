@@ -270,7 +270,6 @@ public:
 
         glBindTexture(GL_TEXTURE_2D, _TEXTURE_ID);
         glBindVertexArray(_VAO);
-
         
         switch (_renderMode)
         {
