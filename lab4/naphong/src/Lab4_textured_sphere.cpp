@@ -43,110 +43,92 @@ const char *vertexShaderSource = "#version 330 core\n"
     "void main()\n"
     "{\n"
     "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
-    "   fragmentTexCoord = vec2(1.0, -1.0) * aTexCoord;\n"
+    "   fragmentTexCoord = vec2(1.0, 1.0) * aTexCoord;\n"
     "}\0";
 
 const char *fragmentShaderSource = "#version 330 core\n"
     "in vec2 fragmentTexCoord;\n"
     "out vec4 FragColor;\n"
-    "uniform sampler2D materials[5];\n"
-    "uniform int faceIndex;\n"
+    "uniform sampler2D material;\n"
     "void main()\n"
     "{\n"
-    "   FragColor = vec4(texture(materials[faceIndex], fragmentTexCoord).rgb, 1.0);\n"
+    "   FragColor = vec4(texture(material, fragmentTexCoord).rgb, 1.0);\n"
     "}\n\0";
 
-// Pyramid vertices and texture and indices
-void createPyramid(float center[3], float width, float height, float* vertices) {
-    float hw = width / 2.0f;
-    float hh = height / 2.0f;
-    float x = center[0];
-    float y = center[1];
-    float z = center[2];
+// Create a sphere using stacks and sectors
+void createSphereVertices(float radius, int stackCount, int sectorCount, std::vector<float>& vertices) {
+    float x, y, z, xy;                              // vertex position
+    //float nx, ny, nz, lengthInv = 1.0f / radius;    // vertex normal
+    //float s, t;                                     // vertex texCoord
 
-    // Define the 5 faces of the pyramid
-    float tempVertices[] = {
-        // Bottom Face
-        x - hw, y - hh, z - hw, // 0 - back left
-        x + hw, y - hh, z - hw, // 1 - back right
-        x - hw, y - hh, z + hw, // 2 - front left
-        x + hw, y - hh, z + hw, // 3 - front right
+    float sectorStep = 2 * M_PI / sectorCount;
+    float stackStep = M_PI / stackCount;
+    float sectorAngle, stackAngle;
 
-        // Front Face
-        x - hw, y - hh, z + hw, // 4 - front left
-        x + hw, y - hh, z + hw, // 5 - front right
-        x, y + hh, z,           // 6 - top
-        
-        // Back Face
-        x - hw, y - hh, z - hw, // 7 - back left
-        x + hw, y - hh, z - hw, // 8 - back right
-        x, y + hh, z,           // 9 - top
+    for(int i = 0; i <= stackCount; ++i)
+    {
+        stackAngle = M_PI / 2 - i * stackStep;      // starting from pi/2 to -pi/2 (90 to -90 aka left to right)
+        xy = radius * cosf(stackAngle);             // r * cos(u)
+        z = radius * sinf(stackAngle);              // r * sin(u)
 
-        // Left Face
-        x - hw, y - hh, z - hw, // 10 - back left
-        x - hw, y - hh, z + hw, // 11 - front left
-        x, y + hh, z,           // 12 - top
+        // add (sectorCount+1) vertices per stack
+        // the first and last vertices have same position and normal, but different tex coords
+        for(int j = 0; j <= sectorCount; ++j)
+        {
+            sectorAngle = j * sectorStep;           // starting from 0 to 2pi
 
-        // Right Face
-        x + hw, y - hh, z - hw, // 13 - back right
-        x + hw, y - hh, z + hw, // 14 - front right
-        x, y + hh, z           // 15 - top
-    };
-
-    // Copy the vertices to the provided array
-    for (int i = 0; i < 48; ++i) {
-        vertices[i] = tempVertices[i];
+            // vertex position (x, y, z)
+            x = xy * cosf(sectorAngle);             // r * cos(u) * cos(v)
+            y = xy * sinf(sectorAngle);             // r * cos(u) * sin(v)
+            vertices.push_back(x);
+            vertices.push_back(y);
+            vertices.push_back(z);
+        }
     }
 }
 
-void getTextureCoordinates(float *texturecoords) {
-    float tempTexCoords[] = {
-        // Bottom face
-        0.0f, 0.0f, // back left
-        1.0f, 0.0f, // back right
-        0.0f, 1.0f, // front left
-        1.0f, 1.0f, // front right
+void createSphereTexture(int stackCount, int sectorCount, std::vector<float>& texture) {
+    float s, t;  
+    for (int i = 0; i <= stackCount; ++i) {
 
-        // Front face
-        0.0f, 0.0f, // front left
-        1.0f, 0.0f, // front right
-        0.5f, 1.0f, // top
-
-        // Back face
-        0.0f, 0.0f, // back left
-        1.0f, 0.0f, // back right
-        0.5f, 1.0f, // top
-
-        // Left Face
-        0.0f, 0.0f, // back left
-        0.75f, 0.0f, // front left
-        0.25f, 1.0f, // top
-
-        // Right Face
-        1.0f, 0.0f, // back right
-        0.0f, 0.0f, // front right
-        0.5f, 1.0f, // top
-    };
-
-    for (int i = 0; i < 32; ++i) {
-        texturecoords[i] = tempTexCoords[i];
+        for (int j = 0; j <= sectorCount; ++j) {
+            s = (float)j / sectorCount;
+            t = (float)i / stackCount;
+            texture.push_back(s);
+            texture.push_back(t);
+        }
     }
 }
 
-void getIndices(unsigned int* indices) {
-    unsigned int tempIndices[] = {
-        0, 1, 2, 1, 2, 3,   // Bottom face
-        4, 5, 6,            // Front face
-        7, 8, 9,            // Back face
-        10, 11, 12,         // Left face
-        13, 14, 15          // Right face
-    };
+void createSphereIndices(int stackCount, int sectorCount, std::vector<unsigned int>& indices) {
+    // std::vector<int> lineIndices;
+    int k1, k2;
+    for(int i = 0; i < stackCount; ++i)
+    {
+        k1 = i * (sectorCount + 1);     // beginning of current stack
+        k2 = k1 + sectorCount + 1;      // beginning of next stack
 
-    // Copy the indices to the provided array
-    for (int i = 0; i < 18; ++i) {
-        indices[i] = tempIndices[i];
+        for(int j = 0; j < sectorCount; ++j, ++k1, ++k2)
+        {
+            // 2 triangles per sector excluding first and last stacks
+            // k1 => k2 => k1+1
+            if(i != 0)
+            {
+                indices.push_back(k1);
+                indices.push_back(k2);
+                indices.push_back(k1 + 1);
+            }
+
+            if(i != (stackCount-1))
+            {
+                indices.push_back(k1 + 1);
+                indices.push_back(k2);
+                indices.push_back(k2 + 1);
+            }
+        }
     }
 }
+
 
 int main()
 {
@@ -185,16 +167,15 @@ int main()
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    // Pyramid vertices and texture and indices
-    float vertices[48];
-    float center[3] = {0.0f, 0.0f, 0.0f};
-    createPyramid(center, 1.0f, 1.0f, vertices);
-
-    float texture[32]; //bottom face 4 set of texture + F/L/B/R has 3 set of texture * Each set is vec2
-    getTextureCoordinates(texture);
-
-    unsigned int indices[18]; // 6 triangles * 3 vertex each
-    getIndices(indices);
+    // Sphere vertices and texture and indices
+    std::vector<float> vertices;
+    std::vector<float> texture;
+    std::vector<unsigned int> indices;
+    int stackCount = 120;
+    int sectorCount = 60;
+    createSphereVertices(1.0f, stackCount, sectorCount, vertices);
+    createSphereTexture(stackCount, sectorCount, texture);
+    createSphereIndices(stackCount, sectorCount, indices);
 
     // Set up vertex data and buffers
     unsigned int VBO, VAO, EBO, TBO;
@@ -204,17 +185,17 @@ int main()
     glGenBuffers(1, &TBO);
 
     glBindVertexArray(VAO);
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
     glBindBuffer(GL_ARRAY_BUFFER, TBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(texture), texture, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, texture.size() * sizeof(float), &texture[0], GL_STATIC_DRAW);
 
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
@@ -227,12 +208,8 @@ int main()
     perspective(projection, 45.0f, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
 
-    Material* materials[5];
-    materials[0] = new Material("../src/wall.jpg"); // bottom
-    materials[1] = new Material("../src/cat.jpg"); // front
-    materials[2] = new Material("../src/orange.jpg"); // back
-    materials[3] = new Material("../src/cocktail.jpg"); // left
-    materials[4] = new Material("../src/inn.jpg"); // right
+    Material* material = new Material("../src/cat.jpg");
+    material->use();
 
     // Render loop
     while (!glfwWindowShouldClose(window))
@@ -270,19 +247,7 @@ int main()
 
         // Draw the box
         glBindVertexArray(VAO);
-        // Draw each face with its corresponding texture
-        for (int i = 0; i < 1; ++i) {
-            materials[i]->use();
-            glUniform1i(glGetUniformLocation(shaderProgram, "faceIndex"), i);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(i * 6 * sizeof(unsigned int)));
-        }
-        // only bottom is 6 vertex, the rest is 3
-        for (int i = 1; i < 5; ++i) {
-            materials[i]->use();
-            glUniform1i(glGetUniformLocation(shaderProgram, "faceIndex"), i);
-            int startOfIndices = ((i-1) * 3) + 6;
-            glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void*)(startOfIndices * sizeof(unsigned int)));
-        }
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -295,9 +260,7 @@ int main()
     glDeleteBuffers(1, &TBO);
     glDeleteProgram(shaderProgram);
 
-    for (int i = 0; i < 5; i++) {
-        delete materials[i];
-    }
+    delete material;
 
     glfwTerminate();
     return 0;

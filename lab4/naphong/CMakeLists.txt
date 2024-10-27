@@ -8,7 +8,7 @@ add_executable(lab4
     src/config.cpp
     src/material.h
     src/material.cpp
-    src/Lab4_textured_pyramid.cpp 
+    src/Lab4_textured_sphere.cpp 
     src/glad.c
 )
 
