@@ -297,6 +297,8 @@ int main()
     glDeleteBuffers(1, &EBO);
     glDeleteProgram(shaderProgram);
 
+    delete material;
+
     glfwTerminate();
     return 0;
 }
