@@ -55,6 +55,7 @@ void run()
     mesh.addShaderFill(&fill_shader);
     mesh.addShaderLine(&line_shader);
     mesh.addShaderPoint(&point_shader);
+    mesh.addTexture("container.jpg");
     mesh.initialize();
 
     while (!glfwWindowShouldClose(mainWindow))
@@ -153,12 +154,78 @@ static void createPyramid(float* center, float sizeX, float sizeY, float sizeZ, 
     float centerY = center[1];
     float centerZ = center[2];
 
+    std::vector<float> vertices = {
+        // Base
+        centerX - halfX, centerY - halfY, centerZ - halfZ, // Base-left-back   - 0
+        centerX - halfX, centerY - halfY, centerZ + halfZ, // Base-left-front  - 1
+        centerX + halfX, centerY - halfY, centerZ + halfZ, // Base-right-front - 2
+        centerX + halfX, centerY - halfY, centerZ - halfZ, // Base-right-back  - 3
+
+         // Back
+        centerX - halfX, centerY - halfY, centerZ - halfZ, // Base-left-back   - 0
+        centerX + halfX, centerY - halfY, centerZ - halfZ, // Base-right-back  - 3
+        centerX        , centerY + halfY, centerZ        , // Tip              - 4 
+
+         // Front
+        centerX - halfX, centerY - halfY, centerZ + halfZ, // Base-left-front  - 1
+        centerX + halfX, centerY - halfY, centerZ + halfZ, // Base-right-front - 2
+        centerX        , centerY + halfY, centerZ        , // Tip              - 4 
+
+         // Left
+        centerX - halfX, centerY - halfY, centerZ - halfZ, // Base-left-back   - 0
+        centerX - halfX, centerY - halfY, centerZ + halfZ, // Base-left-front  - 1
+        centerX        , centerY + halfY, centerZ        , // Tip              - 4 
+
+         // Right
+        centerX + halfX, centerY - halfY, centerZ + halfZ, // Base-right-front - 2
+        centerX + halfX, centerY - halfY, centerZ - halfZ, // Base-right-back  - 3
+        centerX        , centerY + halfY, centerZ        , // Tip              - 4 
+    };
+
+    for (auto v : vertices)
+    {
+        mesh->addVertex(v);
+    }
+
+    std::vector<float> texture_coords = {
+        // Base
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f,
+
+        // Back
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        0.5f, 1.0f,
+
+        // Front
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        0.5f, 1.0f,
+
+        // Left
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        0.5f, 1.0f,
+
+        // Right
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        0.5f, 1.0f,
+    };
+
+    for (auto v : texture_coords)
+    {
+        mesh->addTextureCoord(v);
+    }
+
     const std::vector<unsigned int> indices = {
         0, 1, 3, 2, 3, 1, // Base
-        0, 3, 4, // Back
-        1, 2, 4, // Front
-        0, 1, 4, // Left
-        2, 3, 4, // Right
+        4, 5, 6, // Back
+        7, 8, 9, // Front
+        10, 11, 12, // Left
+        13, 14, 15, // Right
     };
 
     for (auto v : indices)
@@ -166,18 +233,6 @@ static void createPyramid(float* center, float sizeX, float sizeY, float sizeZ, 
         mesh->addIndices(v);
     }
 
-    std::vector<float> vertices = {
-        centerX - halfX, centerY - halfY, centerZ - halfZ, // Base-left-back   - 0
-        centerX - halfX, centerY - halfY, centerZ + halfZ, // Base-left-front  - 1
-        centerX + halfX, centerY - halfY, centerZ + halfZ, // Base-right-front - 2
-        centerX + halfX, centerY - halfY, centerZ - halfZ, // Base-right-back  - 3
-        centerX        , centerY + halfY, centerZ        , // Tip                - 4 
-    };
-
-    for (auto v : vertices)
-    {
-        mesh->addVertex(v);
-    }
 }
 
 

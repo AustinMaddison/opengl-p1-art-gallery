@@ -1,8 +1,8 @@
 #version 330 core
 layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;
+layout (location = 1) in vec2 aTexCoord;
 
-out vec3 vColor;
+out vec2 vTexCoord;
 uniform float uTime;
 
 mat3x3 rotate_mat_z(float t)
@@ -30,8 +30,9 @@ mat3x3 rotate_mat_y(float t)
         -sin(t),   0, cos(t));
 }
 
+
 void main()
 { 
     gl_Position = vec4(aPos * rotate_mat_z(sin(uTime*2) * 0.2) * rotate_mat_y(uTime), 1.0);
-    vColor = aPos.xyz;
+    vTexCoord = aTexCoord;
 }
