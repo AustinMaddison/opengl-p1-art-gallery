@@ -37,7 +37,19 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="container.jpg">
+    <Image Include="TEX_4.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="TEX_3.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="TEX_0.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="TEX_1.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="TEX_2.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

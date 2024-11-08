@@ -154,6 +154,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mylib.h" />
+    <ClInclude Include="stb_image.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="TEX_0.jpg" />
+    <Image Include="TEX_1.jpg" />
+    <Image Include="TEX_2.jpg" />
+    <Image Include="TEX_3.jpg" />
+    <Image Include="TEX_4.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

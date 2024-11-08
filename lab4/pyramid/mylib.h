@@ -22,6 +22,11 @@ enum RenderMode {
     BOTH
 };
 
+
+
+
+
+
 // Shader class heavily inspired from learnopengl.com
 class Shader
 {
@@ -269,6 +274,37 @@ public:
         isDirty = false;
     }
 
+
+    void draw_fill()
+    {
+        _shaderFill->use();
+        _shaderFill->setFloat("uTime", glfwGetTime());
+        for (int i = 0; i <= 6; ++i) {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, _TEXTURE_IDS[i % _TEXTURE_IDS.size()]);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+            glDrawElements(GL_TRIANGLES, (unsigned int)i * 3, GL_UNSIGNED_INT, 0);
+        }
+    }
+
+    void draw_wireframe()
+    {
+        glDisable(GL_DEPTH_TEST); // disable depth test so that the points are rendered on top of everything
+
+        _shaderLine->use();
+        _shaderLine->setFloat("uTime", glfwGetTime());
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
+
+        _shaderPoint->use();
+        _shaderPoint->setFloat("uTime", glfwGetTime());
+        glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+        glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
+
+        glEnable(GL_DEPTH_TEST); // enable depth test again
+    }
+
     void draw()
     {
         try
@@ -283,64 +319,27 @@ public:
             return;
         }
 
-        auto _texture_id_stack = _TEXTURE_IDS;
-
-        glBindTexture(GL_TEXTURE_2D, _texture_id_stack[0]);
-
         glBindVertexArray(_VAO);
 
         switch (_renderMode)
         {
         case FILL:
-            _shaderFill->use();
-            _shaderFill->setFloat("uTime", glfwGetTime());
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
+            draw_fill();
             break;
 
         case WIREFRAME:
-
-            glDisable(GL_DEPTH_TEST); // disable depth test so that the points are rendered on top of everything
-
-            _shaderLine->use();
-            _shaderLine->setFloat("uTime", glfwGetTime());
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
-
-            _shaderPoint->use();
-            _shaderPoint->setFloat("uTime", glfwGetTime());
-            glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-            glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
-
-            glEnable(GL_DEPTH_TEST); // enable depth test again
-
+            draw_wireframe();
             break;
 
         case BOTH:
 
-            _shaderFill->use();
-            _shaderFill->setFloat("uTime", glfwGetTime());
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
-
-            glDisable(GL_DEPTH_TEST); // disable depth test so that the points are rendered on top of everything
-
-            _shaderLine->use();
-            _shaderLine->setFloat("uTime", glfwGetTime());
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
-
-            _shaderPoint->use();
-            _shaderPoint->setFloat("uTime", glfwGetTime());
-            glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-            glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
-
-            glEnable(GL_DEPTH_TEST); // enable depth test again
+            draw_fill();
+            draw_wireframe();
             break;
 
         default:
             break;
-        }
+        } 
     }
 
     void setRenderMode(RenderMode renderMode)
