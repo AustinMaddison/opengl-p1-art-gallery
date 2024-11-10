@@ -24,6 +24,7 @@ const char* WINDOW_NAME = "pyramid";
 RenderMode RENDER_MODE = BOTH;
 bool BUTTON_TRIGGERED_ONCE = false;
 
+
 int main()
 {
     try
@@ -41,6 +42,7 @@ int main()
 
 void run()
 {
+    std::cout << "Press [W] to switch between render modes." << std::endl;
     GLFWwindow* mainWindow = createWindow();
     setGlSettings();
 
@@ -55,7 +57,11 @@ void run()
     mesh.addShaderFill(&fill_shader);
     mesh.addShaderLine(&line_shader);
     mesh.addShaderPoint(&point_shader);
-    mesh.addTexture("container.jpg");
+    mesh.addTexture("TEX_0.jpg");
+    mesh.addTexture("TEX_1.jpg");
+    mesh.addTexture("TEX_2.jpg");
+    mesh.addTexture("TEX_3.jpg");
+    mesh.addTexture("TEX_4.jpg");
     mesh.initialize();
 
     while (!glfwWindowShouldClose(mainWindow))
@@ -197,22 +203,22 @@ static void createPyramid(float* center, float sizeX, float sizeY, float sizeZ, 
         // Back
         0.0f, 0.0f,
         1.0f, 0.0f,
-        0.5f, 1.0f,
+        0.5f, -1.0f,
 
         // Front
-        0.0f, 0.0f,
         1.0f, 0.0f,
-        0.5f, 1.0f,
+        0.0f, 0.0f,
+        0.5f, -1.0f,
 
         // Left
-        0.0f, 0.0f,
         1.0f, 0.0f,
-        0.5f, 1.0f,
+        0.0f, 0.0f,
+        0.5f, -1.0f,
 
         // Right
-        0.0f, 0.0f,
         1.0f, 0.0f,
-        0.5f, 1.0f,
+        0.0f, 0.0f,
+        0.5f, -1.0f,
     };
 
     for (auto v : texture_coords)

@@ -51,7 +51,7 @@ void run()
 
     Mesh mesh = Mesh();
     float center[3] = { 0.0f, 0.0f, 0.0f };
-    createSphere(center, 0.5f, 12, 12, &mesh);
+    createSphere(center, 0.5f, 100, 50, &mesh);
 
     Shader fill_shader("default_shader.vert", "default_fill_shader.frag");
     Shader line_shader("default_shader.vert", "default_line_shader.frag");
@@ -60,6 +60,11 @@ void run()
     mesh.addShaderFill(&fill_shader);
     mesh.addShaderLine(&line_shader);
     mesh.addShaderPoint(&point_shader);
+    mesh.addTexture("TEX_0.jpg");
+    mesh.addTexture("TEX_1.jpg");
+    mesh.addTexture("TEX_2.jpg");
+    mesh.addTexture("TEX_3.jpg");
+    mesh.addTexture("TEX_4.jpg");
     mesh.initialize();
 
     while (!glfwWindowShouldClose(mainWindow))
@@ -135,8 +140,8 @@ GLFWwindow* createWindow()
 void setGlSettings()
 {
     glEnable(GL_DEPTH_TEST);
-    glPointSize(12.0f);
-    glLineWidth(2.0f);
+    glPointSize(4.0f);
+    glLineWidth(1.0f);
 
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_BLEND);
@@ -148,12 +153,11 @@ void setGlSettings()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-
 static void createSphere(float* center, float radius, unsigned int segments, unsigned int rings, Mesh* mesh)
 {
     const unsigned int MIN_SEGMENTS = 3;
     const unsigned int MIN_RINGS = 3;
-    
+
     if (segments < MIN_SEGMENTS || rings < MIN_RINGS)
     {
         std::cout << "ERROR::CREATE_CONTEXT: Failed to initialize GLAD." << '\n';
@@ -168,18 +172,23 @@ static void createSphere(float* center, float radius, unsigned int segments, uns
     float dPhi = (2 * M_PI) / segments;
 
     std::vector<float> vertices;
+    std::vector<float> texCoords;
     std::vector<unsigned int> indices;
-    
-    // Generate Vertices
+
+    // Generate Vertices and Texture Coordinates
 
     // North Pole
     vertices.push_back(0.0f);
     vertices.push_back(radius);
     vertices.push_back(0.0f);
+    texCoords.push_back(0.5f); 
+    texCoords.push_back(1.0f); 
 
-    float pX, pY, pZ;
+    float pX, pY, pZ, u, v;
     for (int r = 1; r < rings; ++r) {
         float theta = r * dTheta;
+        v = 1.0f - (float)r / rings; 
+
         for (int s = 0; s <= segments; ++s) {
             float phi = s * dPhi;
 
@@ -191,6 +200,9 @@ static void createSphere(float* center, float radius, unsigned int segments, uns
             vertices.push_back(pY);
             vertices.push_back(pZ);
 
+            u = (float)s / segments; 
+            texCoords.push_back(u);
+            texCoords.push_back(v);
         }
     }
 
@@ -198,12 +210,14 @@ static void createSphere(float* center, float radius, unsigned int segments, uns
     vertices.push_back(0.0f);
     vertices.push_back(-radius);
     vertices.push_back(0.0f);
+    texCoords.push_back(0.5f); 
+    texCoords.push_back(0.0f); 
 
     for (int i = 0; i < vertices.size() - 2; i += 3)
     {
         pX = centerX + vertices[i];
-        pY = centerY + vertices[i+1];
-        pZ = centerZ + vertices[i+2];
+        pY = centerY + vertices[i + 1];
+        pZ = centerZ + vertices[i + 2];
 
         mesh->addVertex(pX);
         mesh->addVertex(pY);
@@ -211,7 +225,6 @@ static void createSphere(float* center, float radius, unsigned int segments, uns
     }
 
     // Generate Indices
-
     for (int i = 0; i < segments; ++i) {
         indices.push_back(0);
         indices.push_back(i + 1);
@@ -235,15 +248,19 @@ static void createSphere(float* center, float radius, unsigned int segments, uns
         }
     }
 
-
-    int offset = (vertices.size() / 3 - 1) - segments -1;
+    int offset = (vertices.size() / 3 - 1) - segments - 1;
     for (int i = 0; i < segments; ++i) {
-        indices.push_back(vertices.size()/3 -1);
+        indices.push_back(vertices.size() / 3 - 1);
         indices.push_back(offset + i);
         indices.push_back(offset + i + 1);
     }
 
     for (auto idx : indices) {
         mesh->addIndices(idx);
+    }
+
+    for (int i = 0; i < texCoords.size(); i += 2) {
+        mesh->addTextureCoord(texCoords[i]);
+        mesh->addTextureCoord(-texCoords[i + 1]);
     }
 }

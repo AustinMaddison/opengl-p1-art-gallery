@@ -30,9 +30,18 @@ mat3x3 rotate_mat_y(float t)
         -sin(t),   0, cos(t));
 }
 
+mat3x3 uniform_scale_mat(float s)
+{
+	return mat3x3(
+		s, 0, 0,
+		0, s, 0,
+		0, 0, s);
+}
+
 
 void main()
 { 
-    gl_Position = vec4(aPos * rotate_mat_z(sin(uTime*2) * 0.2) * rotate_mat_y(uTime), 1.0);
+                           
+    gl_Position = vec4(aPos * uniform_scale_mat(1.5) * rotate_mat_z(sin(uTime*2) * 0.3) * rotate_mat_y(uTime), 1.0);
     vTexCoord = aTexCoord;
 }
