@@ -1,17 +1,10 @@
-#pragma once
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
-#include <string>
-#include <fstream>
-#include <sstream>
 #include <iostream>
-#include <vector>
-#include <stdexcept>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <glad/glad.h>
+
+#pragma
 
 class Shader
 {
@@ -90,9 +83,6 @@ public:
     {
         glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
     }
-
-
-
 
 private:
 
