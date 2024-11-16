@@ -4,6 +4,8 @@
 #include <sstream>
 #include <glad/glad.h>
 
+#include "math3d.hpp"
+
 #pragma
 
 class Shader
@@ -82,6 +84,11 @@ public:
     void setFloat(const std::string& name, float value) const
     {
         glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+    }
+
+    void setVector2D(const std::string& name, Vector3D value) const
+    {
+        glUniform2f(glGetUniformLocation(ID, name.c_str()), value.x, value.y);
     }
 
 private:

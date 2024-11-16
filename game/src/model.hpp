@@ -24,7 +24,6 @@ public:
         _EBO = -1;
         _TBO = -1;
         Shader* _fillShader = nullptr;
-        Shader* _lineShader = nullptr;
     }
 
     ~Model()
@@ -75,15 +74,15 @@ public:
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
         int width, height, nrChannels;
-        unsigned char* data = stbi_load(file_path, &width, &height, &nrChannels, 0);
+        unsigned char* data = stbi_load(file_path, &width, &height, &nrChannels, STBI_rgb_alpha);
 
         if (data)
         {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
         }
         else
@@ -96,23 +95,13 @@ public:
         _TEXTURE_IDS.push_back(TEXTURED_ID);
     }
 
-    void addShaderLine(Shader* s)
-    {
-        _shaderLine = s;
-    }
-
-    void addShaderPoint(Shader* s)
-    {
-        _shaderPoint = s;
-    }
-
     void initialize()
     {
         try
         {
-            if (_vertices.size() > 0 && _vertices.empty()) throw std::runtime_error("VERTICES_NOT_ADDED");
-            if (_indices.size() > 0 && _indices.empty()) throw std::runtime_error("INDICES_NOT_ADDED");
-            if (_texture_coords.size() > 0 && _texture_coords.empty()) throw std::runtime_error("TEXCOORDS_NOT_ADDED");
+            if (_vertices.empty()) throw std::runtime_error("VERTICES_NOT_ADDED");
+            if (_indices.empty()) throw std::runtime_error("INDICES_NOT_ADDED");
+            if (_texture_coords.empty()) throw std::runtime_error("TEXCOORDS_NOT_ADDED");
         }
         catch (std::exception e)
         {
@@ -156,8 +145,8 @@ public:
         try
         {
             if (_shaderFill == nullptr) throw std::runtime_error("FILL_SHADER_NOT_ADDED");
-            if (_shaderLine == nullptr) throw std::runtime_error("LINE_SHADER_NOT_ADDED");
             if (!isMeshIsInitialized) throw std::runtime_error("MESH_NOT_INITIALIZED");
+            if (_TEXTURE_IDS.empty()) throw std::runtime_error("TEXCOORDS_NOT_ADDED");
         }
         catch (std::exception e)
         {
@@ -167,11 +156,12 @@ public:
 
         auto _texture_id_stack = _TEXTURE_IDS;
 
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, _texture_id_stack[0]);
 
         glBindVertexArray(_VAO);
         _shaderFill->use();
-        _shaderFill->setFloat("uTime", glfwGetTime());
+        _shaderFill->setVector2D("texScale", Vector3D(1.0, 1.0, 1.0));
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glDrawElements(GL_TRIANGLES, (unsigned int)_indices.size(), GL_UNSIGNED_INT, 0);
     }
@@ -190,11 +180,5 @@ private:
     std::vector<float> _texture_coords;
     std::vector<int> _indices;
 
-    RenderMode _renderMode = BOTH;
-
     Shader* _shaderFill = nullptr;
-    Shader* _shaderLine = nullptr;
-    Shader* _shaderPoint = nullptr;
 };
-
-#endif 

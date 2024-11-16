@@ -9,6 +9,7 @@
 #include <stdexcept>
 
 #include "math3d.hpp"
+#include "box.hpp"
 
 void run();
 GLFWwindow* createWindow();
@@ -40,13 +41,28 @@ void run()
     GLFWwindow* mainWindow = createWindow();
     setGlSettings();
 
+    // create game room
+    Model model = Model();
+    float dimensions = 1.0f;
+    float floor = -(dimensions/2);
+    float center[3] = { 0.0f, floor, 0.0f };
+    createBox(center, dimensions, dimensions, dimensions, &model);
+
+    Shader fill_shader("../resources/shaders/default_shader.vert", "../resources/shaders/default_fill_shader.frag");
+    model.addShaderFill(&fill_shader);
+
+    model.addTexture("../resources/textures/tileset/00.png");
+    model.initialize();
+
 
     while (!glfwWindowShouldClose(mainWindow))
     {
         processInput(mainWindow);
 
-        glClearColor(0.f, 0.f, 0.f, 1.0f);
+        glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        model.draw();
 
         glfwSwapBuffers(mainWindow);
         glfwPollEvents();
@@ -80,7 +96,9 @@ GLFWwindow* createWindow()
 
     if (window == nullptr)
     {
-        throw std::exception("ERROR::CREATE_CONTEXT: Failed to initialize GLAD.");
+        std::cerr << "Failed to create GLFWwindow" << std::endl;
+        glfwTerminate();
+        return window;
     }
 
     glfwMakeContextCurrent(window);
@@ -88,7 +106,8 @@ GLFWwindow* createWindow()
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        throw std::exception("ERROR::CREATE_CONTEXT: Failed to initialize GLAD.");
+        std::cerr << "Failed to initialize GLAD" << std::endl;
+        return window;
     }
 
     return window;
@@ -99,6 +118,10 @@ void setGlSettings()
     glEnable(GL_DEPTH_TEST);
     glPointSize(12.0f);
     glLineWidth(2.0f);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
 
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_BLEND);

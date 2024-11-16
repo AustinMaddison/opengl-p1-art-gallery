@@ -2,7 +2,7 @@
 #include <vector>
 #include "model.hpp"
 
-static void createBox(float* center, float sizeX, float sizeY, float sizeZ, Model* mesh) {
+static void createBox(float* center, float sizeX, float sizeY, float sizeZ, Model* model) {
     float hSizeX = sizeX / 2.0f;
     float hSizeY = sizeY / 2.0f;
     float hSizeZ = sizeZ / 2.0f;
@@ -52,7 +52,7 @@ static void createBox(float* center, float sizeX, float sizeY, float sizeZ, Mode
 
     for (auto v : vertices)
     {
-        mesh->addVertex(v);
+        model->addVertex(v);
     }
 
     std::vector<float> texture_coords = {
@@ -95,7 +95,7 @@ static void createBox(float* center, float sizeX, float sizeY, float sizeZ, Mode
 
     for (auto v : texture_coords)
     {
-        mesh->addTextureCoord(v);
+        model->addTextureCoord(v);
     }
 
     const std::vector<unsigned int> indices = {
@@ -109,7 +109,7 @@ static void createBox(float* center, float sizeX, float sizeY, float sizeZ, Mode
 
     for (auto v : indices)
     {
-        mesh->addIndices(v);
+        model->addIndices(v);
     }
 
 }
