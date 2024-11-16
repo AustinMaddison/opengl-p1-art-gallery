@@ -257,3 +257,4 @@ lab4/naphong/build/*
 lab4/naphong/src/Lab3_pyramid.cpp
 lab4/naphong/.vscode/settings.json
 lab4/naphong/src/Lab3_sphere.cpp
+*/.idea
