@@ -10,6 +10,7 @@
 #include <iostream>
 #include <vector>
 
+#include "shader.hpp"
 #include "camera.hpp"
 
 GLFWwindow* createWindow();
@@ -46,17 +47,21 @@ int main()
     GLFWwindow* mainWindow = createWindow();
     setGlGlobalSettings();
 
+    /* ------------------------------ Load Textures ----------------------------- */
+    unsigned int floorTexture = loadTexture("resources/textures/enviroment/floor.jpg");
+    // unsigned int wallTexture = loadTexture("resources/textures/enviroment/floor.jpg");
+    // unsigned int artTexture = loadTexture("resources/textures/art/girl.jpg");
+
 
     /* ----------------------------- Create Shaders ----------------------------- */
-
-
-
-
+    Shader floorShader("default.vert", "default.frag");
+    floorShader.use();
+    floorShader.setInt("texture0", 0);
 
     /* --------------------------- Primitives Vertcies -------------------------- */
     // layout: Pos vec3, TexCoords vec2 
 
-    float cubeVertices[] = {
+    float planeVertices[] = {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
          0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
          0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
@@ -145,6 +150,33 @@ int main()
     };
 
 
+    /* ----------------------- Create VAOs From Primitives ---------------------- */
+
+    // Cube
+    unsigned int cubeVAO, cubeVBO;
+    glGenVertexArrays(1, &cubeVAO);
+    glGenBuffers(1, &cubeVBO);
+    glBindVertexArray(cubeVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    
+    // Plane
+    unsigned int planeVAO, planeVBO;
+    glGenVertexArrays(1, &planeVAO);
+    glGenBuffers(1, &planeVBO);
+    glBindVertexArray(planeVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+
     /* -------------------------------- Game Loop ------------------------------- */
     while (!glfwWindowShouldClose(mainWindow))
     {
@@ -153,13 +185,31 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // Input
+        // Window and Player Input
         processInput(mainWindow);
         processCameraCollision(&camera);
-        
 
         glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+        // Render Scene
+
+
+        // FLOOR
+        floorShader.use();
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 view = camera.GetViewMatrix();
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        floorShader.setMat4("model", model);
+        floorShader.setMat4("view", view);
+        floorShader.setMat4("projection", projection);
+        glBindVertexArray(planeVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, planeVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+
 
 
 
