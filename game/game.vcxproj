@@ -143,23 +143,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="C:\Users\Austi\Downloads\LearnOpenGL-master\src\stb_image.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\shader.hpp" />
-    <ClCompile Include="src\texture.hpp" />
+    <ClCompile Include="src\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shaders\default_fill_shader.frag" />
-    <None Include="resources\shaders\default_shader.vert" />
+    <None Include="src\shaders\default.frag" />
+    <None Include="src\shaders\default.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\box.hpp" />
     <ClInclude Include="src\camera.hpp" />
-    <ClInclude Include="src\math3d.hpp" />
-    <ClInclude Include="src\model.hpp" />
-    <ClInclude Include="src\painting.hpp" />
-    <ClInclude Include="src\plane.hpp" />
-    <ClInclude Include="src\stb_image.h" />
+    <ClInclude Include="include\stb_image.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
