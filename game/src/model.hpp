@@ -17,12 +17,19 @@
 class Model
 {
 public:
+
+    Shader* shader = nullptr;
+    Vector3D position;
+    Vector3D scale;
+    Vector3D rotation;
+
     Model()
     {
         _VAO = -1;
         _VBO = -1;
         _EBO = -1;
         _TBO = -1;
+        Shader* shader = nullptr;
         Shader* _fillShader = nullptr;
     }
 
@@ -63,7 +70,7 @@ public:
 
     void addShaderFill(Shader* s)
     {
-        _shaderFill = s;
+        shader = s;
     }
 
     void addTexture(const char* file_path)
@@ -82,6 +89,7 @@ public:
 
         if (data)
         {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_SRGB, GL_UNSIGNED_BYTE, data);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
         }
@@ -144,6 +152,7 @@ public:
     {
         try
         {
+            if (shader == nullptr) throw std::runtime_error("FILL_SHADER_NOT_ADDED");
             if (_shaderFill == nullptr) throw std::runtime_error("FILL_SHADER_NOT_ADDED");
             if (!isMeshIsInitialized) throw std::runtime_error("MESH_NOT_INITIALIZED");
             if (_TEXTURE_IDS.empty()) throw std::runtime_error("TEXCOORDS_NOT_ADDED");
@@ -160,6 +169,14 @@ public:
         glBindTexture(GL_TEXTURE_2D, _texture_id_stack[0]);
 
         glBindVertexArray(_VAO);
+        
+        shader->use();
+
+        shader->setFloat("uTime", glfwGetTime());
+        // shader->setMatrix4D("view", );
+        // shader->setMatrix4D("model", );
+        // shader->setVector3D("model", );
+
         _shaderFill->use();
         _shaderFill->setVector2D("texScale", Vector3D(1.0, 1.0, 1.0));
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -171,6 +188,9 @@ private:
     unsigned int _VAO;
     unsigned int _EBO;
     unsigned int _TBO;
+
+
+
     std::vector<unsigned int> _TEXTURE_IDS;
 
     bool isMeshIsInitialized = false;
@@ -179,6 +199,8 @@ private:
     std::vector<float> _vertices;
     std::vector<float> _texture_coords;
     std::vector<int> _indices;
+
+};
 
     Shader* _shaderFill = nullptr;
 };

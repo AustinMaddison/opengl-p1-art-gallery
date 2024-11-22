@@ -7,7 +7,11 @@
 #include <iostream>
 #include <array>
 #include <stdexcept>
+#include <vector>
 
+#include "model.hpp"
+#include "camera.hpp"
+#include "box.hpp"
 #include "math3d.hpp"
 #include "box.hpp"
 
@@ -20,6 +24,16 @@ void processInput(GLFWwindow* window);
 const unsigned int SCR_WIDTH = 640;
 const unsigned int SCR_HEIGHT = 480;
 const char* WINDOW_NAME = "Art Gallery";
+
+Camera camera(Vector3D(0.0f, 0.0f, 3.0f));
+float lastX = SCR_WIDTH / 2.0f;
+float lastY = SCR_HEIGHT / 2.0f;
+bool firstMouse = true;
+
+// timing
+float deltaTime = 0.0f;	// time between current frame and last frame
+float lastFrame = 0.0f;
+
 
 int main()
 {
@@ -41,6 +55,13 @@ void run()
     GLFWwindow* mainWindow = createWindow();
     setGlSettings();
 
+    Model box = Model();
+    createBox(Vector3D(0.0f, 0.0f, 0.0f), 1.0, 0, 0, &box);
+
+    Shader shader = Shader("resource/default_shader.vert", "resource/default_fill_shader.frag");
+    
+    box.addShaderFill(&shader);
+    box.addTexture("resource/girl.jpg");
     // create game room
     Model model = Model();
     float dimensions = 1.0f;
@@ -57,11 +78,26 @@ void run()
 
     while (!glfwWindowShouldClose(mainWindow))
     {
+        float currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         processInput(mainWindow);
 
         glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+            
+        Matrix4D projection = Perspective(radians(45.0f), (float)SCR_HEIGHT / (float)SCR_WIDTH, 0.1f, 100.0f );
+         box.shader->setMatrix4D("projection", projection);   
+        box.shader->setMatrix4D("view", camera.GetViewMatrix());
+
+        Matrix4D model(1.0);
+        box.shader->setMatrix4D("model", model);
+
+
+        box.draw();
         model.draw();
 
         glfwSwapBuffers(mainWindow);
@@ -75,6 +111,42 @@ void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.ProcessKeyboard(FORWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.ProcessKeyboard(LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.ProcessKeyboard(RIGHT, deltaTime);
+}
+
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+{
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+    lastX = xpos;
+    lastY = ypos;
+
+    camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -131,6 +203,11 @@ void setGlSettings()
     glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
+    //glEnable(GL_CULL_FACE);
+    //glCullFace(GL_BACK);
+    //glFrontFace(GL_CW);
 }
 
 

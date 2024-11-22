@@ -1,5 +1,8 @@
 #pragma once
-#include <cmath>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 
 // Math implmentation from my textbook: 
 // Foundation of Game Engine Development, Volume 1: Mathenatucs
@@ -16,7 +19,6 @@ struct Vector3D
         y = b;
         z = c;
     }
-
 
     float& operator [](int i)
     {
@@ -124,6 +126,7 @@ public:
         n[2][0] = n20; n[2][1] = n21; n[2][2] = n22;
     }
 
+
     Matrix3D(const Vector3D& a, const Vector3D& b, const Vector3D& c)
     {
         n[0][0] = a.x; n[0][1] = a.x; n[0][2] = a.y;
@@ -150,8 +153,6 @@ public:
     {
         return (*reinterpret_cast<const Vector3D*>(n[j]));
     }
-
-
 };
 
 
@@ -229,7 +230,6 @@ inline Matrix3D Inverse(const Matrix3D& M)
 }
 
 
-#include <cmath>
 
 struct Vector4D
 {
@@ -349,6 +349,17 @@ public:
         n[3][0] = n30; n[3][1] = n31; n[3][2] = n32; n[3][3] = n33;
     }
 
+    Matrix4D(float val)
+    {
+        for(int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                n[i][j] =  (val == 1.0 && i != j ) ? 0.0 : val; 
+            }
+        }
+    }
+
     float& operator()(int i, int j)
     {
         return n[j][i];
@@ -429,9 +440,9 @@ inline float Determinant3x3(float a, float b, float c,
 inline float Determinant(const Matrix4D& M)
 {
     return M[0][0] * Determinant3x3(M[1][1], M[1][2], M[1][3], M[2][1], M[2][2], M[2][3], M[3][1], M[3][2], M[3][3])
-        - M[0][1] * Determinant3x3(M[1][0], M[1][2], M[1][3], M[2][0], M[2][2], M[2][3], M[3][0], M[3][2], M[3][3])
-        + M[0][2] * Determinant3x3(M[1][0], M[1][1], M[1][3], M[2][0], M[2][1], M[2][3], M[3][0], M[3][1], M[3][3])
-        - M[0][3] * Determinant3x3(M[1][0], M[1][1], M[1][2], M[2][0], M[2][1], M[2][2], M[3][0], M[3][1], M[3][2]);
+         - M[0][1] * Determinant3x3(M[1][0], M[1][2], M[1][3], M[2][0], M[2][2], M[2][3], M[3][0], M[3][2], M[3][3])
+         + M[0][2] * Determinant3x3(M[1][0], M[1][1], M[1][3], M[2][0], M[2][1], M[2][3], M[3][0], M[3][1], M[3][3])
+         - M[0][3] * Determinant3x3(M[1][0], M[1][1], M[1][2], M[2][0], M[2][1], M[2][2], M[3][0], M[3][1], M[3][2]);
 }
 
 inline Matrix4D operator *(const Matrix4D& M, float scalar)
@@ -444,5 +455,51 @@ inline Matrix4D operator *(const Matrix4D& M, float scalar)
             result(i, j) = M(i, j) * scalar;
         }
     }
+    return result;
+}
+
+inline float radians(float degrees)
+{
+    return 180.0f/M_PI * degrees;
+}
+
+
+Matrix4D LookAt(Vector3D  const& eye, Vector3D  const& center, Vector3D  const& up)
+{
+    Vector3D  f = Normalize(center - eye);
+    Vector3D  u = Normalize(up);          //
+    Vector3D  s = Normalize(Cross(f, u)); // right vector
+    u = Cross(s, f);
+
+    Matrix4D result(1.0f);
+    result[0][0] = s.x;
+    result[1][0] = s.y;
+    result[2][0] = s.z;
+    
+    result[0][1] = u.x;
+    result[1][1] = u.y;
+    result[2][1] = u.z;
+
+    result[0][2] = -f.x;
+    result[1][2] = -f.y;
+    result[2][2] = -f.z;
+
+    result[3][0] = -Dot(s, eye);
+    result[3][1] = -Dot(u, eye);
+    result[3][2] =  Dot(f, eye);
+    return result;
+}
+
+
+Matrix4D Perspective(float fovY, float aspect, float nearPlane, float farPlane) {
+    Matrix4D result(0.0f);
+
+    float tanHalfFovy = std::tan(fovY / 2.0f);
+
+    result[0][0] = 1.0f / (aspect * tanHalfFovy); 
+    result[1][1] = 1.0f / tanHalfFovy;      
+    result[2][2] = -(farPlane + nearPlane) / (farPlane - nearPlane); 
+    result[2][3] = -1.0f;                        
+    result[3][2] = -(2.0f * farPlane * nearPlane) / (farPlane - nearPlane); 
     return result;
 }

@@ -1,7 +1,10 @@
 #pragma once
 #include <vector>
+#include "math3d.hpp"
 #include "model.hpp"
 
+
+static void createBox(Vector3D center, float sizeX, float sizeY, float sizeZ, Model *model) {
 static void createBox(float* center, float sizeX, float sizeY, float sizeZ, Model* model) {
     float hSizeX = sizeX / 2.0f;
     float hSizeY = sizeY / 2.0f;
@@ -11,14 +14,13 @@ static void createBox(float* center, float sizeX, float sizeY, float sizeZ, Mode
     float centerZ = center[2];
 
     std::vector<float> vertices = {
-        // aPos                                               aTexCoord
-
+        // aPos                                             
         // Back Face
         centerX - hSizeX, centerY - hSizeY, centerZ - hSizeZ, // Bottom-left-back - 0
         centerX + hSizeX, centerY - hSizeY, centerZ - hSizeZ, // Bottom-right-back - 1
         centerX + hSizeX, centerY + hSizeY, centerZ - hSizeZ, // Top-right-back - 2
         centerX - hSizeX, centerY + hSizeY, centerZ - hSizeZ, // Top-left-back - 3
-
+                                                            
         // Front Face                                       
         centerX - hSizeX, centerY - hSizeY, centerZ + hSizeZ, // Bottom-left-front - 4
         centerX + hSizeX, centerY - hSizeY, centerZ + hSizeZ, // Bottom-right-front - 5
@@ -107,7 +109,7 @@ static void createBox(float* center, float sizeX, float sizeY, float sizeZ, Mode
         20, 21, 22, 22, 23, 20  // Top face
     };
 
-    for (auto v : indices)
+    for (auto v : indices) 
     {
         model->addIndices(v);
     }

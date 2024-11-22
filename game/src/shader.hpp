@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -84,6 +86,16 @@ public:
     void setFloat(const std::string& name, float value) const
     {
         glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+    }
+    
+    void setVector3D(const std::string& name, const Vector3D &value) const
+    {
+        glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
+    }
+    
+    void setMatrix4D(const std::string& name, const Matrix4D &value) const
+    {
+        glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1 , GL_FALSE, &value[0][0]);
     }
 
     void setVector2D(const std::string& name, Vector3D value) const

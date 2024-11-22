@@ -53,5 +53,8 @@
     <ClInclude Include="src\plane.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\camera.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

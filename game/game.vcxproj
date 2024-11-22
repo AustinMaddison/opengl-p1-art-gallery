@@ -154,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\box.hpp" />
+    <ClInclude Include="src\camera.hpp" />
     <ClInclude Include="src\math3d.hpp" />
     <ClInclude Include="src\model.hpp" />
     <ClInclude Include="src\painting.hpp" />
