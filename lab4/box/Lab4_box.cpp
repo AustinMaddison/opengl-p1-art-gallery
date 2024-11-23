@@ -50,13 +50,9 @@ void run()
     createBox(center, 0.5f, 0.5f, 0.5f, &mesh);
 
     Shader fill_shader("default_shader.vert", "default_fill_shader.frag");
-    Shader line_shader("default_shader.vert", "default_line_shader.frag");
-    Shader point_shader("default_shader.vert", "default_point_shader.frag");
 
     mesh.addTexture("container.jpg");
     mesh.addShaderFill(&fill_shader);
-    mesh.addShaderLine(&line_shader);
-    mesh.addShaderPoint(&point_shader);
     mesh.initialize();
     
     while (!glfwWindowShouldClose(mainWindow))
@@ -155,7 +151,7 @@ static void createBox(float *center, float sizeX, float sizeY, float sizeZ, Mesh
     float centerZ = center[2];
 
     std::vector<float> vertices = {
-        // aPos                                               aTexCoord
+        // aPos                                             
 
         // Back Face
         centerX - hSizeX, centerY - hSizeY, centerZ - hSizeZ, // Bottom-left-back - 0
