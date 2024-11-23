@@ -13,7 +13,35 @@
 #include "shader.hpp"
 #include "camera.hpp"
 
-#define DEBUG
+// #define DEBUG
+
+/* -------------------------------------------------------------------------- */
+/*                                  Settings                                  */
+/* -------------------------------------------------------------------------- */
+
+const unsigned int SCR_WIDTH = 1280;
+const unsigned int SCR_HEIGHT = 720;
+const char* WINDOW_NAME = "Art Gallery";
+
+/* ---------------------------------- Room ---------------------------------- */
+const float roomSize = 10.0f;
+const float roomHeightFactor = 0.4f;
+
+
+/* --------------------------------- Player --------------------------------- */
+Camera camera(glm::vec3(0.0f, 2.0f, 0.0f));
+float lastX = SCR_WIDTH / 2.0f;
+float lastY = SCR_HEIGHT / 2.0f;
+bool firstMouse = true;
+
+const float collisionPadding = 0.1;            
+glm::vec4 cameraCollisonBounds(glm::vec4(-1, 1, -1, 1) * (roomSize * 0.5f) * (1.0f - collisionPadding));
+
+
+/* ---------------------------------- Time ---------------------------------- */
+float deltaTime = 0.0f;	// time between current frame and last frame
+float lastFrame = 0.0f;
+
 
 GLFWwindow* createWindow();
 void setGlGlobalSettings();
@@ -43,40 +71,13 @@ struct Painting {
 
         artDiffuseTexture = loadTexture(diffusePath, &width, &height);
         artSpecularTexture = loadTexture(specularPath, &width, &height);
-        size = glm::vec3(width/64.0f, height/64.0f, 1.0);
+        size = glm::vec3((float)width/64.0f, (float)height/64.0f, 1.0f);
+
+        std::cout << size.x << " " << size.y << '\n';
     }
 
     Painting(char const* path) : Painting(path, path) {}
-
-
 }; // struct Painting
-
-/* -------------------------------------------------------------------------- */
-/*                                  Settings                                  */
-/* -------------------------------------------------------------------------- */
-
-const unsigned int SCR_WIDTH = 1280;
-const unsigned int SCR_HEIGHT = 720;
-const char* WINDOW_NAME = "Art Gallery";
-
-/* ---------------------------------- Room ---------------------------------- */
-const float roomSize = 10.0f;
-const float roomHeightFactor = 0.4f;
-
-
-/* --------------------------------- Player --------------------------------- */
-Camera camera(glm::vec3(0.0f, 2.0f, 0.0f));
-float lastX = SCR_WIDTH / 2.0f;
-float lastY = SCR_HEIGHT / 2.0f;
-bool firstMouse = true;
-
-const float collisionPadding = 0.1;            
-glm::vec4 cameraCollisonBounds(glm::vec4(-1, 1, -1, 1) * (roomSize * 0.5f) * (1.0f - collisionPadding));
-
-
-/* ---------------------------------- Time ---------------------------------- */
-float deltaTime = 0.0f;	// time between current frame and last frame
-float lastFrame = 0.0f;
 
 
 int main()
@@ -109,7 +110,8 @@ int main()
     wallShader.setInt("material.specular", 1);
     wallShader.setFloat("material.shininess", 32.0f);
     wallShader.setInt("material.sampleSpace", 2);
-    wallShader.setVec3("material.scale", glm::vec3(0.5f, 0.75f, 0.5f));
+    // wallShader.setVec3("material.scale", glm::vec3(0.5f, 0.75f, 0.5f));
+    wallShader.setVec3("material.scale", glm::vec3(1.f));
     wallShader.setVec3("material.translate", glm::vec3(0.0f));
 
     // Painting
@@ -375,8 +377,12 @@ int main()
             glBindTexture(GL_TEXTURE_2D, paintingCurr.artSpecularTexture);
 
             scaMat = glm::scale(glm::mat4(1.f), paintingCurr.size);
-            model = tranMat * rotMat * scaMat;
-            paintingShader.setMat4("model",  glm::rotate(glm::mat4(1.0f), glm::radians(90.0f * i), glm::vec3(0, 1, 0)) * model);
+            model = tranMat * scaMat * rotMat;
+            model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f * i), glm::vec3(0, 1, 0)) * model;
+            
+
+            paintingShader.setMat4("model", model);
+            
             paintingShader.setInt("material.sampleSpace", SampleSpace::TEXCOORDS);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
