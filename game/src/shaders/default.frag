@@ -28,26 +28,18 @@ struct Light {
     float quadratic;
 };
 
+#define MAX_LIGHTS 5
+
 in vec3 FragPos;  
 in vec3 Normal;  
 in vec2 TexCoords;
   
 uniform vec3 viewPos;
 uniform Material material;
-uniform Light light;
+uniform Light lights[MAX_LIGHTS];
 
-void main()
+vec3 calcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewPos, vec2 uv)
 {
-    // texture sample space
-    vec3 uvw = vec3(1.0f) * material.scale + material.translate;
-    if (material.sampleSpace == 0) uvw *= vec3(TexCoords, 0.0);
-    if (material.sampleSpace == 1) uvw *= vec3(FragPos.xz, 0.0);
-    if (material.sampleSpace == 2) uvw *= vec3(FragPos.xy, 0.0);
-    if (material.sampleSpace == 3) uvw *= vec3(FragPos.zy, 0.0);
-
-
-    vec2 uv = uvw.xy;
-
     // ambient
     vec3 ambient = light.ambient * texture(material.diffuse, uv).rgb;
   	
@@ -76,7 +68,25 @@ void main()
     ambient *= attenuation;  
     diffuse *= attenuation;
     specular *= attenuation;   
+
+    return ambient + diffuse + specular;
+}
+
+void main()
+{
+    // texture sample space
+    vec3 uvw = vec3(1.0f) * material.scale + material.translate;
+    if (material.sampleSpace == 0) uvw *= vec3(TexCoords, 0.0);
+    if (material.sampleSpace == 1) uvw *= vec3(FragPos.xz, 0.0);
+    if (material.sampleSpace == 2) uvw *= vec3(FragPos.xy, 0.0);
+    if (material.sampleSpace == 3) uvw *= vec3(FragPos.zy, 0.0);
+    vec2 uv = uvw.xy;
+
+    vec3 color = vec3(0.0);
+    for(int i = 0; i < MAX_LIGHTS; i ++)
+    {
+        color += calcLight(lights[i], Normal, FragPos, viewPos, uv);
+    }
         
-    vec3 result = ambient + diffuse + specular;
-    FragColor = vec4(result, 1.0);
+    FragColor = vec4(color, 1.0);
 } 

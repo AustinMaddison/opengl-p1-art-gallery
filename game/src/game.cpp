@@ -25,7 +25,7 @@ const char* WINDOW_NAME = "Art Gallery";
 
 /* ---------------------------------- Room ---------------------------------- */
 const float roomSize = 10.0f;
-const float roomHeightFactor = 0.4f;
+const float roomHeightFactor = 0.45f;
 
 
 /* --------------------------------- Player --------------------------------- */
@@ -52,6 +52,7 @@ void processInput(GLFWwindow* window);
 unsigned int loadTexture(const char* path);
 unsigned int loadTexture(char const* path, int *width, int *height);
 void processCameraCollision(Camera* camera);
+void setLights(std::vector<glm::vec3> *lightPositions, Shader *shader);
 
 enum SampleSpace {
     TEXCOORDS,
@@ -177,7 +178,7 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
 
-    float planeXZVertices[] = {
+    float planeUpVertices[] = {
          0.5f, 0.0f, -0.5f,  0.0f, 1.0f,  0.0f,  1.0f, 1.0f,
         -0.5f, 0.0f, -0.5f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,
          0.5f, 0.0f,  0.5f,  0.0f, 1.0f,  0.0f,  1.0f, 0.0f,
@@ -186,6 +187,26 @@ int main()
         -0.5f, 0.0f,  0.5f,  0.0f, 1.0f,  0.0f,  0.0f, 0.0f,
     };
 
+    float planeDownVertices[] = {
+         0.5f, 0.0f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+        -0.5f, 0.0f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, 0.0f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f, 0.0f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f, 0.0f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, 0.0f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+    };
+
+
+
+    /* ----------------------------- Light Positions ---------------------------- */
+
+    std::vector<glm::vec3> LightPositions = {
+        glm::vec3(  0.0f, roomSize * roomHeightFactor, 0.0f),
+        glm::vec3(  roomSize * 0.45, roomSize * roomHeightFactor, 0.0f),
+        glm::vec3( -roomSize * 0.45, roomSize * roomHeightFactor,  0.0f),
+        glm::vec3(  0.0f, roomSize * roomHeightFactor,  roomSize * 0.45),
+        glm::vec3(  0.0f, roomSize * roomHeightFactor,  -roomSize * 0.45)
+    };
 
 
     /* ----------------------- Create VAOs From Primitives ---------------------- */
@@ -208,13 +229,14 @@ int main()
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(1);
     
+
     // Plane
     unsigned int planeVAO, planeVBO;
     glGenVertexArrays(1, &planeVAO);
     glGenBuffers(1, &planeVBO);
     glBindVertexArray(planeVAO);
     glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(planeXZVertices), &planeXZVertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(planeUpVertices), &planeUpVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
@@ -251,24 +273,12 @@ int main()
         /*                                Render Scene                                */
         /* -------------------------------------------------------------------------- */
         
-        float t = currentFrame;
-        glm::vec3 w1( cos(t+0.2) , sin(t+0.86), cos(t+0.35) );
-        glm::vec3 w2( cos(t*2+0.54) , cos(t*2+0.32), cos(t*2+0.83) );
-        glm::vec3 w3( cos(t*2*2+0.2) , sin(t*2*2+0.86), cos(t*2*2+0.35) );
-        glm::vec3 noise = w1*0.33f + w2*0.33f + w3*0.33f;
-
-
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 model;
         glm::mat4 tranMat; 
         glm::mat4 rotMat; 
         glm::mat4 scaMat; 
-
-        /* --------------------------------- Lights --------------------------------- */
-
-        glm::vec3 lightPos(0.0f, 2.0f, 0.0f);
-        glm::vec3 lightDir(0.0f, -1.0f, 0.0f);
 
 
         /* ---------------------------------- Floor --------------------------------- */
@@ -279,22 +289,7 @@ int main()
         floorShader.setMat4("view", view);
         floorShader.setMat4("projection", projection);
         floorShader.setVec3("viewPos", camera.Position);
-
-
-
-        floorShader.setVec3("light.position",lightPos);
-
-
-
-        floorShader.setVec3("light.direction", lightDir + noise * 0.01f);
-        floorShader.setFloat("light.cutOff", glm::cos(glm::radians(20.f )));
-        floorShader.setFloat("light.outerCutOff", glm::cos(glm::radians(75.f - (sin(glfwGetTime()* 2) + 1) * 0.5)));
-        floorShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-        floorShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
-        floorShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-        floorShader.setFloat("light.constant", 1.0f);
-        floorShader.setFloat("light.linear", 0.09f);
-        floorShader.setFloat("light.quadratic", 0.032f);
+        setLights(&LightPositions, &floorShader);
 
         glBindVertexArray(planeVAO);
         glActiveTexture(GL_TEXTURE0);
@@ -304,6 +299,28 @@ int main()
 
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
+
+        /* --------------------------------- Ceiling -------------------------------- */
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0, roomSize*roomHeightFactor, 0.0)); 
+        model = glm::scale(model, glm::vec3(roomSize));
+        model = glm::rotate(model, glm::radians(-180.0f), glm::vec3(1, 0, 0));
+        floorShader.use();
+        floorShader.setMat4("model", model );
+        floorShader.setMat4("view", view);
+        floorShader.setMat4("projection", projection);
+        floorShader.setVec3("viewPos", camera.Position);
+        setLights(&LightPositions, &floorShader);
+
+        glBindVertexArray(planeVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, floorDiffuseTexture);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, floorSpecularTexture);
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+
 
         /* ---------------------------------- Walls ---------------------------------- */
         wallShader.use();
@@ -316,17 +333,8 @@ int main()
         wallShader.setMat4("view", view);
         wallShader.setMat4("projection", projection);
         wallShader.setVec3("viewPos", camera.Position);
+        setLights(&LightPositions, &wallShader);
 
-        wallShader.setVec3("light.position",lightPos);
-        wallShader.setVec3("light.direction", lightDir);
-        wallShader.setFloat("light.cutOff", glm::cos(glm::radians(5.5f)));
-        wallShader.setFloat("light.outerCutOff", glm::cos(glm::radians(30.5f)));
-        wallShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-        wallShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
-        wallShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-        wallShader.setFloat("light.constant", 1.0f);
-        wallShader.setFloat("light.linear", 0.09f);
-        wallShader.setFloat("light.quadratic", 0.032f);
 
         tranMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, roomSize*roomHeightFactor, roomSize)*0.5f); 
         rotMat = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1, 0, 0)); 
@@ -340,8 +348,6 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
 
-
-
         glBindVertexArray(0);
 
         /* ------------------------------ Art Paintings ----------------------------- */
@@ -351,19 +357,7 @@ int main()
         paintingShader.setMat4("view", view);
         paintingShader.setMat4("projection", projection);
         paintingShader.setVec3("viewPos", camera.Position);
-
-        paintingShader.setVec3("light.position",lightPos);
-        paintingShader.setVec3("light.direction", lightDir);
-        paintingShader.setFloat("light.cutOff", glm::cos(glm::radians(5.5f)));
-        paintingShader.setFloat("light.outerCutOff", glm::cos(glm::radians(30.5f)));
-        paintingShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-        paintingShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
-        paintingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-        paintingShader.setFloat("light.constant", 1.0f);
-        paintingShader.setFloat("light.linear", 0.09f);
-        paintingShader.setFloat("light.quadratic", 0.032f);
-
-
+        setLights(&LightPositions, &paintingShader);
 
         tranMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, roomSize*roomHeightFactor, roomSize*0.99)*0.5f); 
         rotMat = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1, 0, 0)); 
@@ -376,7 +370,7 @@ int main()
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, paintingCurr.artSpecularTexture);
 
-            scaMat = glm::scale(glm::mat4(1.f), paintingCurr.size);
+            scaMat = glm::scale(glm::mat4(1.f), paintingCurr.size*2.0f);
             model = tranMat * scaMat * rotMat;
             model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f * i), glm::vec3(0, 1, 0)) * model;
             
@@ -388,9 +382,6 @@ int main()
         }
 
         glBindVertexArray(0);
-
-
-
         
         glfwSwapBuffers(mainWindow);
         glfwPollEvents();
@@ -400,6 +391,48 @@ int main()
 
     return 0;
 }
+
+void setLights(std::vector<glm::vec3> *lightPositions, Shader *shader)
+{
+    float t = glfwGetTime();
+    glm::vec3 w1( cos(t+0.2) , sin(t+0.86), cos(t+0.35) );
+    glm::vec3 w2( cos(t*2+0.54) , cos(t*2+0.32), cos(t*2+0.83) );
+    glm::vec3 w3( cos(t*2*2+0.2) , sin(t*2*2+0.86), cos(t*2*2+0.35) );
+    glm::vec3 noise = w1*0.33f + w2*0.33f + w3*0.33f;
+
+    /* ------------------------------- Floor Light ------------------------------ */
+    shader->setVec3("lights[0].position", glm::vec3(0.0f, 2.0f, 0.0f));
+    shader->setVec3("lights[0].direction", glm::vec3(0.0f, -1.0f, 0.0f) + noise * 0.01f);
+    shader->setFloat("lights[0].cutOff", glm::cos(glm::radians(20.f )));
+    shader->setFloat("lights[0].outerCutOff", glm::cos(glm::radians(75.f - (sin(glfwGetTime()* 2) + 1) * 0.5)));
+    shader->setVec3("lights[0].ambient", 0.2f, 0.2f, 0.2f);
+    shader->setVec3("lights[0].diffuse", 0.5f, 0.5f, 0.5f);
+    shader->setVec3("lights[0].specular", 1.0f, 1.0f, 1.0f);
+    shader->setFloat("lights[0].constant", 1.0f);
+    shader->setFloat("lights[0].linear", 0.09f);
+    shader->setFloat("lights[0].quadratic", 0.032f);
+
+    /* ----------------------------- Painting Lights ---------------------------- */
+    for(int i = 1; i < lightPositions->size(); i++)
+    {
+        std::string idx = "lights[" + std::to_string(i) + "]";
+
+        shader->setVec3(idx+".position", lightPositions->at(i));
+
+        glm::vec3 direction = glm::normalize( glm::vec3(0.f, -5.f, 0.f) - glm::normalize(lightPositions->at(i))*glm::vec3(-1, 0, -1) ); 
+
+        shader->setVec3(idx+".direction", direction + noise * 0.01f);
+        shader->setFloat(idx+".cutOff", glm::cos(glm::radians(5.f )));
+        shader->setFloat(idx+".outerCutOff", glm::cos(glm::radians(35.f - (sin(glfwGetTime()* 2) + 1) * 0.5)));
+        shader->setVec3(idx+".ambient", 0.0f, 0.0f, 0.0f);
+        shader->setVec3(idx+".diffuse", 0.5f, 0.5f, 0.5f);
+        shader->setVec3(idx+".specular", 1.0f, 1.0f, 1.0f);
+        shader->setFloat(idx+".constant", 1.0f);
+        shader->setFloat(idx+".linear", 0.09f);
+        shader->setFloat(idx+".quadratic", 0.032f);
+    }
+}
+
 
 void processCameraCollision(Camera* camera)
 {
@@ -507,8 +540,6 @@ GLFWwindow* createWindow()
 void setGlGlobalSettings()
 {
     glEnable(GL_DEPTH_TEST);
-
-
 
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_BLEND);
