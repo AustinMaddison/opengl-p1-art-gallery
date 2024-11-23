@@ -1,4 +1,7 @@
 #version 330 core
+
+precision mediump float;
+
 out vec4 FragColor;
 
 struct Material {
@@ -41,6 +44,8 @@ void main()
     if (material.sampleSpace == 1) uvw *= vec3(FragPos.xz, 0.0);
     if (material.sampleSpace == 2) uvw *= vec3(FragPos.xy, 0.0);
     if (material.sampleSpace == 3) uvw *= vec3(FragPos.zy, 0.0);
+
+
     vec2 uv = uvw.xy;
 
     // ambient

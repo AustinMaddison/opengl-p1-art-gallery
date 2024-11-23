@@ -13,6 +13,8 @@
 #include "shader.hpp"
 #include "camera.hpp"
 
+#define DEBUG
+
 GLFWwindow* createWindow();
 void setGlGlobalSettings();
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -20,19 +22,57 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 unsigned int loadTexture(const char* path);
+unsigned int loadTexture(char const* path, int *width, int *height);
 void processCameraCollision(Camera* camera);
 
-/* -------------------------------- Settings -------------------------------- */
-const unsigned int SCR_WIDTH = 640;
-const unsigned int SCR_HEIGHT = 480;
+enum SampleSpace {
+    TEXCOORDS,
+    XZ,
+    XY,
+    ZY,
+};
+
+
+struct Painting {
+    unsigned int artDiffuseTexture{};
+    unsigned int artSpecularTexture{};
+    glm::vec3 size{};
+
+    Painting(char const* diffusePath, char const* specularPath)
+    {
+        int width, height;
+
+        artDiffuseTexture = loadTexture(diffusePath, &width, &height);
+        artSpecularTexture = loadTexture(specularPath, &width, &height);
+        size = glm::vec3(width/64.0f, height/64.0f, 1.0);
+    }
+
+    Painting(char const* path) : Painting(path, path) {}
+
+
+}; // struct Painting
+
+/* -------------------------------------------------------------------------- */
+/*                                  Settings                                  */
+/* -------------------------------------------------------------------------- */
+
+const unsigned int SCR_WIDTH = 1280;
+const unsigned int SCR_HEIGHT = 720;
 const char* WINDOW_NAME = "Art Gallery";
 
+/* ---------------------------------- Room ---------------------------------- */
+const float roomSize = 10.0f;
+const float roomHeightFactor = 0.4f;
+
+
 /* --------------------------------- Player --------------------------------- */
-Camera camera(glm::vec3(0.0f, 3.0f, 0.0f));
+Camera camera(glm::vec3(0.0f, 1.0f, 0.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
-glm::vec4 cameraCollisonBounds(glm::vec4(-1, 1, -1, 1) * 5.0f);  // x-min, x-max, z-min, z-max
+
+const float collisionPadding = 0.1;            
+glm::vec4 cameraCollisonBounds(glm::vec4(-1, 1, -1, 1) * (roomSize * 0.5f) * (1.0f - collisionPadding));
 
 
 /* ---------------------------------- Time ---------------------------------- */
@@ -60,6 +100,34 @@ int main()
     floorShader.setInt("material.sampleSpace", 1);
     floorShader.setVec3("material.scale", glm::vec3(1.0f));
     floorShader.setVec3("material.translate", glm::vec3(0.0f));
+
+    // Floor Material
+    unsigned int wallDiffuseTexture = loadTexture("resources/textures/enviroment/wall.jpg");
+    unsigned int wallSpecularTexture = loadTexture("resources/textures/enviroment/wall.jpg");
+    Shader wallShader("src/shaders/default.vert", "src/shaders/default.frag");
+    wallShader.use();
+    wallShader.setInt("material.diffuse", 0);
+    wallShader.setInt("material.specular", 1);
+    wallShader.setFloat("material.shininess", 32.0f);
+    wallShader.setInt("material.sampleSpace", 2);
+    wallShader.setVec3("material.scale", glm::vec3(0.5f, 0.75f, 0.5f));
+    wallShader.setVec3("material.translate", glm::vec3(0.0f));
+
+    // Painting
+    std::vector<Painting> paintings;
+    paintings.push_back( Painting("resources/textures/art/mona-lisa.jpg")    );
+    paintings.push_back( Painting("resources/textures/art/micheal.jpg")      );
+    paintings.push_back( Painting("resources/textures/art/starry-night.jpg") );
+    paintings.push_back( Painting("resources/textures/art/girl.jpg")         );
+    
+    Shader paintingShader("src/shaders/default.vert", "src/shaders/default.frag");
+    paintingShader.use();
+    paintingShader.setInt("material.diffuse", 0);
+    paintingShader.setInt("material.specular", 1);
+    paintingShader.setFloat("material.shininess", 32.0f);
+    paintingShader.setInt("material.sampleSpace", 2);
+    paintingShader.setVec3("material.scale", glm::vec3(1.0f));
+    paintingShader.setVec3("material.translate", glm::vec3(0.0f));
 
     /* --------------------------- Primitives Vertcies -------------------------- */
     // layout: Pos vec3, Normals vec3, TexCoords vec2 
@@ -109,13 +177,14 @@ int main()
     };
 
     float planeXZVertices[] = {
-        -0.5f,  0.0f, -0.5f, 0.0f,  1.0f,  0.0f,  0.0f, 1.0f, 
-         0.5f,  0.0f, -0.5f, 0.0f,  1.0f,  0.0f,  1.0f, 1.0f, 
-         0.5f,  0.0f,  0.5f, 0.0f,  1.0f,  0.0f,  1.0f, 0.0f, 
-         0.5f,  0.0f,  0.5f, 0.0f,  1.0f,  0.0f,  1.0f, 0.0f, 
-        -0.5f,  0.0f,  0.5f, 0.0f,  1.0f,  0.0f,  0.0f, 0.0f, 
-        -0.5f,  0.0f, -0.5f, 0.0f,  1.0f,  0.0f,  0.0f, 1.0f, 
+         0.5f, 0.0f, -0.5f,  0.0f, 1.0f,  0.0f,  1.0f, 1.0f,
+        -0.5f, 0.0f, -0.5f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, 0.0f,  0.5f,  0.0f, 1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f, 0.0f,  0.5f,  0.0f, 1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f, 0.0f, -0.5f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, 0.0f,  0.5f,  0.0f, 1.0f,  0.0f,  0.0f, 0.0f,
     };
+
 
 
     /* ----------------------- Create VAOs From Primitives ---------------------- */
@@ -145,7 +214,7 @@ int main()
     glBindVertexArray(planeVAO);
     glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(planeXZVertices), &planeXZVertices, GL_STATIC_DRAW);
-   glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
@@ -164,9 +233,15 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+
         // Window and Player Input
         processInput(mainWindow);
+
+#ifndef DEBUG
         processCameraCollision(&camera);
+#endif // !DEBUG
+
+
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -174,30 +249,42 @@ int main()
         /* -------------------------------------------------------------------------- */
         /*                                Render Scene                                */
         /* -------------------------------------------------------------------------- */
+        
+        float t = currentFrame;
+        glm::vec3 w1( cos(t+0.2) , sin(t+0.86), cos(t+0.35) );
+        glm::vec3 w2( cos(t*2+0.54) , cos(t*2+0.32), cos(t*2+0.83) );
+        glm::vec3 w3( cos(t*2*2+0.2) , sin(t*2*2+0.86), cos(t*2*2+0.35) );
+        glm::vec3 noise = w1*0.33f + w2*0.33f + w3*0.33f;
 
 
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 model;
 
         /* --------------------------------- Lights --------------------------------- */
 
-        glm::vec3 lightPos(0.0f, 3.0f, 0.0f);
+        glm::vec3 lightPos(0.0f, 2.0f, 0.0f);
         glm::vec3 lightDir(0.0f, -1.0f, 0.0f);
 
 
         /* ---------------------------------- Floor --------------------------------- */
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(roomSize));
         floorShader.use();
-        floorShader.setMat4("model", glm::scale(model, glm::vec3(1.0f) * 5.0f));
+        floorShader.setMat4("model", model );
         floorShader.setMat4("view", view);
         floorShader.setMat4("projection", projection);
         floorShader.setVec3("viewPos", camera.Position);
 
+
+
         floorShader.setVec3("light.position",lightPos);
-        floorShader.setVec3("light.direction", lightDir);
-        floorShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
-        floorShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
-        
+
+
+
+        floorShader.setVec3("light.direction", lightDir + noise * 0.01f);
+        floorShader.setFloat("light.cutOff", glm::cos(glm::radians(20.f )));
+        floorShader.setFloat("light.outerCutOff", glm::cos(glm::radians(75.f - (sin(glfwGetTime()* 2) + 1) * 0.5)));
         floorShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
         floorShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
         floorShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
@@ -214,10 +301,141 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
 
+        /* ---------------------------------- Walls ---------------------------------- */
+        wallShader.use();
+        glBindVertexArray(planeVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, wallDiffuseTexture);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, wallSpecularTexture);
+        
+        wallShader.setMat4("view", view);
+        wallShader.setMat4("projection", projection);
+        wallShader.setVec3("viewPos", camera.Position);
+
+        wallShader.setVec3("light.position",lightPos);
+        wallShader.setVec3("light.direction", lightDir);
+        wallShader.setFloat("light.cutOff", glm::cos(glm::radians(5.5f)));
+        wallShader.setFloat("light.outerCutOff", glm::cos(glm::radians(30.5f)));
+        wallShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+        wallShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+        wallShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+        wallShader.setFloat("light.constant", 1.0f);
+        wallShader.setFloat("light.linear", 0.09f);
+        wallShader.setFloat("light.quadratic", 0.032f);
+
+
+        // Wall 1
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(roomSize, roomSize*roomHeightFactor, roomSize));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1, 0, 0));
+        model = glm::translate(model, glm::vec3(0.0, -0.5, -0.5));
+        wallShader.setMat4("model",  model);
+        wallShader.setInt("material.sampleSpace", SampleSpace::XY);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        // Wall 2
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(roomSize, roomSize*roomHeightFactor, roomSize));
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+        model = glm::translate(model, glm::vec3(0.0, -0.5, 0.5));
+        wallShader.setMat4("model",  model);
+        wallShader.setInt("material.sampleSpace", SampleSpace::XY);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        // Wall 3
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(roomSize, roomSize*roomHeightFactor, roomSize));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1, 0, 0));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 0, 1));
+        model = glm::translate(model, glm::vec3(0.0, -0.5, -0.5));
+        wallShader.setMat4("model",  model);
+        wallShader.setInt("material.sampleSpace", SampleSpace::ZY);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        // Wall 4
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(roomSize, roomSize*roomHeightFactor, roomSize));
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0, 0, 1));
+        model = glm::translate(model, glm::vec3(0.0, -0.5, 0.5));
+        wallShader.setMat4("model",  model);
+        wallShader.setInt("material.sampleSpace", SampleSpace::ZY);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+
+        /* ------------------------------ Art Paintings ----------------------------- */
+        // Painting 1
+        paintingShader.use();
+        glBindVertexArray(planeVAO);
 
 
 
+        paintingShader.setMat4("view", view);
+        paintingShader.setMat4("projection", projection);
+        paintingShader.setVec3("viewPos", camera.Position);
 
+        paintingShader.setVec3("light.position",lightPos);
+        paintingShader.setVec3("light.direction", lightDir);
+        paintingShader.setFloat("light.cutOff", glm::cos(glm::radians(5.5f)));
+        paintingShader.setFloat("light.outerCutOff", glm::cos(glm::radians(30.5f)));
+        paintingShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+        paintingShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+        paintingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+        paintingShader.setFloat("light.constant", 1.0f);
+        paintingShader.setFloat("light.linear", 0.09f);
+        paintingShader.setFloat("light.quadratic", 0.032f);
+
+
+        // Wall 1
+
+        Painting paintingCurr = paintings[0];
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, paintingCurr.artDiffuseTexture);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, paintingCurr.artSpecularTexture);
+
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, paintingCurr.size);
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+        model = glm::translate(model, glm::vec3(0.0, 0.5, 1.5));
+        paintingShader.setMat4("model",  model);
+        paintingShader.setInt("material.sampleSpace", SampleSpace::TEXCOORDS);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        // // Wall 2
+        // model = glm::mat4(1.0f);
+        // model = glm::scale(model, glm::vec3(roomSize, roomSize*roomHeightFactor, roomSize));
+        // model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+        // model = glm::translate(model, glm::vec3(0.0, -0.5, 0.5));
+        // artShader.setMat4("model",  model);
+        // artShader.setInt("material.sampleSpace", SampleSpace::XY);
+        // glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        // // Wall 3
+        // model = glm::mat4(1.0f);
+        // model = glm::scale(model, glm::vec3(roomSize, roomSize*roomHeightFactor, roomSize));
+        // model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1, 0, 0));
+        // model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 0, 1));
+        // model = glm::translate(model, glm::vec3(0.0, -0.5, -0.5));
+        // artShader.setMat4("model",  model);
+        // artShader.setInt("material.sampleSpace", SampleSpace::ZY);
+        // glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        // // Wall 4
+        // model = glm::mat4(1.0f);
+        // model = glm::scale(model, glm::vec3(roomSize, roomSize*roomHeightFactor, roomSize));
+        // model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+        // model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0, 0, 1));
+        // model = glm::translate(model, glm::vec3(0.0, -0.5, 0.5));
+        // artShader.setMat4("model",  model);
+        // artShader.setInt("material.sampleSpace", SampleSpace::ZY);
+        // glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+
+
+
+        
         glfwSwapBuffers(mainWindow);
         glfwPollEvents();
     }
@@ -299,7 +517,7 @@ GLFWwindow* createWindow()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfwWindowHint(GLFW_SAMPLES, 8);
 
     GLFWwindow* window = nullptr;
@@ -334,9 +552,7 @@ void setGlGlobalSettings()
 {
     glEnable(GL_DEPTH_TEST);
 
-    // glEnable(GL_CULL_FACE);
-    // glCullFace(GL_BACK);
-    // glFrontFace(GL_CCW);
+
 
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_BLEND);
@@ -344,9 +560,9 @@ void setGlGlobalSettings()
     glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    //glEnable(GL_CULL_FACE);
-    //glCullFace(GL_BACK);
-    //glFrontFace(GL_CW);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
 }
 
 
@@ -369,6 +585,43 @@ unsigned int loadTexture(char const* path)
 
         glBindTexture(GL_TEXTURE_2D, textureID);
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        stbi_image_free(data);
+    }
+    else
+    {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+        stbi_image_free(data);
+    }
+
+    return textureID;
+}
+
+unsigned int loadTexture(char const* path, int *width, int *height)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    int nrComponents;
+    unsigned char* data = stbi_load(path, width, height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, *width, *height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

@@ -38,7 +38,7 @@ namespace glm
 	template<typename T>
 	GLM_FUNC_QUALIFIER T fastExp(T x)
 	{
-		// This has a better looking and same performance in release mode than the following code. However, in debug mode it's slower.
+		// This has a better looking and same performance in release mode than the following code. However, in DEBUG mode it's slower.
 		// return 1.0f + x * (1.0f + x * 0.5f * (1.0f + x * 0.3333333333f * (1.0f + x * 0.25 * (1.0f + x * 0.2f))));
 		T x2 = x * x;
 		T x3 = x2 * x;
@@ -67,7 +67,7 @@ namespace glm
 	// Increase accuracy on number bigger that 1 and smaller than -1 but it's not enough for high and negative numbers
 	GLM_FUNC_QUALIFIER float fastExp(float x)
 	{
-		// This has a better looking and same performance in release mode than the following code. However, in debug mode it's slower.
+		// This has a better looking and same performance in release mode than the following code. However, in DEBUG mode it's slower.
 		// return 1.0f + x * (1.0f + x * 0.5f * (1.0f + x * 0.3333333333f * (1.0f + x * 0.25 * (1.0f + x * 0.2f))));
 		float x2 = x * x;
 		float x3 = x2 * x;

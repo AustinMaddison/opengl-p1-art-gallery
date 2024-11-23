@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#define DEBUG
+
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
     FORWARD,
@@ -16,9 +18,9 @@ enum Camera_Movement {
 // Default camera values
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
-const float SPEED = 2.5f;
+const float SPEED = 5.0f;
 const float SENSITIVITY = 0.1f;
-const float ZOOM = 45.0f;
+const float ZOOM = 65.0f;
 
 
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
@@ -68,6 +70,16 @@ public:
     void ProcessKeyboard(Camera_Movement direction, float deltaTime)
     {
         float velocity = MovementSpeed * deltaTime;
+        #ifndef DEBUG
+        if (direction == FORWARD)
+            Position += Front * velocity * glm::vec3(1.0, 0.0, 1.0);
+        if (direction == BACKWARD)
+            Position -= Front * velocity * glm::vec3(1.0, 0.0, 1.0);
+        if (direction == LEFT)
+            Position -= Right * velocity * glm::vec3(1.0, 0.0, 1.0);
+        if (direction == RIGHT)
+            Position += Right * velocity * glm::vec3(1.0, 0.0, 1.0);
+        #else
         if (direction == FORWARD)
             Position += Front * velocity;
         if (direction == BACKWARD)
@@ -76,6 +88,7 @@ public:
             Position -= Right * velocity;
         if (direction == RIGHT)
             Position += Right * velocity;
+        #endif
     }
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
@@ -106,8 +119,8 @@ public:
         Zoom -= (float)yoffset;
         if (Zoom < 1.0f)
             Zoom = 1.0f;
-        if (Zoom > 45.0f)
-            Zoom = 45.0f;
+        if (Zoom > 90.0f)
+            Zoom = 90.0f;
     }
 
 private:
