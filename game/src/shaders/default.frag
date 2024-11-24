@@ -100,9 +100,30 @@ vec3 calcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewPos, vec2 uv)
 }
 
 
+vec3 ACESFilm(vec3 x) {
+    float a = 2.51;
+    float b = 0.03;
+    float c = 2.43;
+    float d = 0.59;
+    float e = 0.14;
+    return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
+}
+
+vec3 colorGrade(vec3 color, float contrast, float highlights, float shadows) {
+    // Apply contrast
+    color = ((color - 0.5) * contrast + 0.5);
+
+    // Apply highlights
+    color = mix(color, vec3(1.0), highlights * smoothstep(0.5, 1.0, color));
+
+    // Apply shadows
+    color = mix(color, vec3(0.0), shadows * smoothstep(0.0, 0.5, color));
+
+    return color;
+}
+
 void main()
 {
-    // texture sample space
     vec3 uvw = vec3(1.0f) * material.scale + material.translate;
     if (material.sampleSpace == 0) uvw *= vec3(TexCoords, 0.0);
     if (material.sampleSpace == 1) uvw *= vec3(FragPos.xz, 0.0);
@@ -118,10 +139,7 @@ void main()
         color += calcLight(lights[i], Normal, fragPos, viewPos, uv);
     }
 
-    // vec3 viewDir = normalize(viewPos - FragPos);
-    // viewDir = quantize(viewDir, 3.0f);
-    // vec3 reflectDir = reflect(-lightDir, Normal);  
-
+    color = ACESFilm(color);
+    color = colorGrade(color, 1.00, 0.001, 0.0); 
     FragColor = vec4(color, 1.0);
-    // FragColor = vec4(quantize(FragPos, 16.0f), 1.0);
-} 
+}

@@ -402,33 +402,33 @@ void setLights(std::vector<glm::vec3> *lightPositions, Shader *shader)
 
     /* ------------------------------- Floor Light ------------------------------ */
     shader->setVec3("lights[0].position", glm::vec3(0.0f, 2.0f, 0.0f));
-    shader->setVec3("lights[0].direction", glm::vec3(0.0f, -1.0f, 0.0f) + noise * 0.01f);
+    shader->setVec3("lights[0].direction", glm::vec3(0.0f, -1.0f, 0.0f) + noise * 0.02f);
     shader->setFloat("lights[0].cutOff", glm::cos(glm::radians(20.f )));
     shader->setFloat("lights[0].outerCutOff", glm::cos(glm::radians(75.f - (sin(glfwGetTime()* 2) + 1) * 0.5)));
-    shader->setVec3("lights[0].ambient", 0.2f, 0.2f, 0.2f);
-    shader->setVec3("lights[0].diffuse", 0.5f, 0.5f, 0.5f);
-    shader->setVec3("lights[0].specular", 1.0f, 1.0f, 1.0f);
+    shader->setVec3("lights[0].ambient", 0.1f, 0.1f, 0.2f);
+    shader->setVec3("lights[0].diffuse", 0.60f*1.0f, 0.50f*1.0f, 0.30f*1.0f);
+    shader->setVec3("lights[0].specular", 1.0f*2.0f, 1.0f*2.0f, 1.0f*2.0f);
     shader->setFloat("lights[0].constant", 1.0f);
-    shader->setFloat("lights[0].linear", 0.09f);
-    shader->setFloat("lights[0].quadratic", 0.032f);
+    shader->setFloat("lights[0].linear", 0.08f);
+    shader->setFloat("lights[0].quadratic", 0.016f);
 
     /* ----------------------------- Painting Lights ---------------------------- */
     for(int i = 1; i < lightPositions->size(); i++)
     {
         std::string idx = "lights[" + std::to_string(i) + "]";
 
-        shader->setVec3(idx+".position", lightPositions->at(i));
+        shader->setVec3(idx+".position", lightPositions->at(i) + glm::vec3(0.0f, 0.1f, 0.0f));
 
         glm::vec3 direction = glm::normalize( glm::vec3(0.f, -5.f, 0.f) - glm::normalize(lightPositions->at(i))*glm::vec3(-1, 0, -1) ); 
 
         shader->setVec3(idx+".direction", direction + noise * 0.01f);
-        shader->setFloat(idx+".cutOff", glm::cos(glm::radians(5.f )));
+        shader->setFloat(idx+".cutOff", glm::cos(glm::radians(0.f )));
         shader->setFloat(idx+".outerCutOff", glm::cos(glm::radians(35.f - (sin(glfwGetTime()* 2) + 1) * 0.5)));
         shader->setVec3(idx+".ambient", 0.0f, 0.0f, 0.0f);
-        shader->setVec3(idx+".diffuse", 0.5f, 0.5f, 0.5f);
-        shader->setVec3(idx+".specular", 1.0f, 1.0f, 1.0f);
-        shader->setFloat(idx+".constant", 1.0f);
-        shader->setFloat(idx+".linear", 0.09f);
+        shader->setVec3(idx+".diffuse", 0.60f*0.9f, 0.50f*0.9f, 0.30f*0.9f);
+        shader->setVec3(idx+".specular", 1.0f*1.2f, 1.0f*1.2f, 1.0f*1.2f);
+        shader->setFloat(idx+".constant", 0.3f);
+        shader->setFloat(idx+".linear", 0.04f);
         shader->setFloat(idx+".quadratic", 0.032f);
     }
 }
