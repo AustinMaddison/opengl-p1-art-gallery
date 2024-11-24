@@ -178,7 +178,7 @@ vec3 calcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewPos, vec2 uv)
 
 
 
-vec3 ACESFilm(vec3 x) {
+vec3 ACESFilmTonemap(vec3 x) {
     float a = 2.51;
     float b = 0.03;
     float c = 2.43;
@@ -188,13 +188,10 @@ vec3 ACESFilm(vec3 x) {
 }
 
 vec3 colorGrade(vec3 color, float contrast, float highlights, float shadows) {
-    // Apply contrast
     color = ((color - 0.5) * contrast + 0.5);
 
-    // Apply highlights
     color = mix(color, vec3(1.0), highlights * smoothstep(0.5, 1.0, color));
 
-    // Apply shadows
     color = mix(color, vec3(0.0), shadows * smoothstep(0.0, 0.5, color));
 
     return color;
@@ -217,8 +214,8 @@ void main()
         color += calcLight(lights[i], Normal, fragPos, viewPos, uv);
     }
 
-    color = ACESFilm(color);
-    color = colorGrade(color, 1.00, 0.001, 0.0);
+    color = ACESFilmTonemap(color);
+    color = colorGrade(color, 1.00, 0.004, 0.0);
 
 
     FragColor = vec4(color, 1.0);

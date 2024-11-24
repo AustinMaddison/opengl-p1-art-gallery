@@ -109,7 +109,7 @@ int main()
     wallShader.use();
     wallShader.setInt("material.diffuse", 0);
     wallShader.setInt("material.specular", 1);
-    wallShader.setFloat("material.shininess", 32.0f);
+    wallShader.setFloat("material.shininess", 14.0f);
     wallShader.setInt("material.sampleSpace", 2);
     // wallShader.setVec3("material.scale", glm::vec3(0.5f, 0.75f, 0.5f));
     wallShader.setVec3("material.scale", glm::vec3(1.f));
@@ -126,7 +126,7 @@ int main()
     paintingShader.use();
     paintingShader.setInt("material.diffuse", 0);
     paintingShader.setInt("material.specular", 1);
-    paintingShader.setFloat("material.shininess", 32.0f);
+    paintingShader.setFloat("material.shininess", 1.8f);
     paintingShader.setInt("material.sampleSpace", 2);
     paintingShader.setVec3("material.scale", glm::vec3(1.0f));
     paintingShader.setVec3("material.translate", glm::vec3(0.0f));
