@@ -35,23 +35,36 @@ in vec3 Normal;
 in vec2 TexCoords;
   
 uniform vec3 viewPos;
+// uniform float time;
 uniform Material material;
 uniform Light lights[MAX_LIGHTS];
 
+
+vec3 quantize(vec3 v, float factor)
+{
+    v = floor(v * factor + 0.5) / factor;
+    return v; 
+}
+
+
 vec3 calcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewPos, vec2 uv)
 {
+
+    // fragPos = quantize(fragPos, 1.0f);
+
+    normal = normalize(normal);
+
     // ambient
     vec3 ambient = light.ambient * texture(material.diffuse, uv).rgb;
-  	
+
     // diffuse 
-    vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(light.position - FragPos);
-    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 lightDir = normalize(quantize(light.position, 16.0f) - fragPos);
+    float diff = max(dot(normal, lightDir), 0.0);
     vec3 diffuse = light.diffuse * diff * texture(material.diffuse, uv).rgb;  
     
     // specular
-    vec3 viewDir = normalize(viewPos - FragPos);
-    vec3 reflectDir = reflect(-lightDir, norm);  
+    vec3 viewDir = normalize(quantize(viewPos, 16.0f) - fragPos);
+    vec3 reflectDir = reflect(-lightDir, normal);  
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec3 specular = light.specular * spec * texture(material.specular, uv).rgb;  
 
@@ -63,14 +76,29 @@ vec3 calcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewPos, vec2 uv)
     specular *= intensity;
     
     // attenuation
-    float distance = length(light.position - FragPos);
+    float distance = length(quantize(light.position, 16.0f) - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
+    
+
+    float steps = 10.0f;
+    float attenuation_c = 0.0f;
+    for(float i = 1.0f; i <= steps; i+=1.0f)
+    {
+        float offset = 0.8f/steps *i;
+        attenuation_c += smoothstep(offset - 0.01, offset, attenuation) * sqrt(i);
+        attenuation_c += (smoothstep(offset - 0.01, offset, attenuation) - smoothstep(offset - 0.1, offset-0.02, attenuation))  * sqrt(i);
+    }
+
+    attenuation_c /= steps;
     ambient *= attenuation;  
-    diffuse *= attenuation;
-    specular *= attenuation;   
+    diffuse *= attenuation_c;  
+    specular *= attenuation_c;  
+
+
 
     return ambient + diffuse + specular;
 }
+
 
 void main()
 {
@@ -83,10 +111,17 @@ void main()
     vec2 uv = uvw.xy;
 
     vec3 color = vec3(0.0);
+    vec3 fragPos = quantize(FragPos, 16.0f);
+    
     for(int i = 0; i < MAX_LIGHTS; i ++)
     {
-        color += calcLight(lights[i], Normal, FragPos, viewPos, uv);
+        color += calcLight(lights[i], Normal, fragPos, viewPos, uv);
     }
-        
+
+    // vec3 viewDir = normalize(viewPos - FragPos);
+    // viewDir = quantize(viewDir, 3.0f);
+    // vec3 reflectDir = reflect(-lightDir, Normal);  
+
     FragColor = vec4(color, 1.0);
+    // FragColor = vec4(quantize(FragPos, 16.0f), 1.0);
 } 
