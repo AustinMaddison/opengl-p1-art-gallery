@@ -117,9 +117,9 @@ int main()
 
     // Painting
     std::vector<Painting> paintings;
-    paintings.push_back( Painting("resources/textures/art/mona-lisa.jpg")    );
-    paintings.push_back( Painting("resources/textures/art/micheal.jpg")      );
     paintings.push_back( Painting("resources/textures/art/starry-night.jpg") );
+    paintings.push_back( Painting("resources/textures/art/micheal.jpg")      );
+    paintings.push_back( Painting("resources/textures/art/mona-lisa.jpg")    );
     paintings.push_back( Painting("resources/textures/art/girl.jpg")         );
     
     Shader paintingShader("src/shaders/default.vert", "src/shaders/default.frag");
