@@ -133,6 +133,7 @@ int main()
     paintings.push_back( Painting("resources/textures/art/micheal.jpg")      );
     paintings.push_back( Painting("resources/textures/art/mona-lisa.jpg")    );
     paintings.push_back( Painting("resources/textures/art/girl.jpg")         );
+    paintings.push_back( Painting("resources/textures/art/wave.jpg"));
     
     Shader paintingShader("src/shaders/default.vert", "src/shaders/default.frag");
     paintingShader.use();
@@ -374,7 +375,7 @@ int main()
         tranMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, roomSize*roomHeightFactor, roomSize*0.99)*0.5f); 
         rotMat = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1, 0, 0)); 
 
-        for(int i = 0; i < 4; i++)
+        for(int i = 0; i < 5; i++)
         {
             Painting paintingCurr = paintings[i];
             glActiveTexture(GL_TEXTURE0);
