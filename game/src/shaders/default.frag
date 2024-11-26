@@ -177,6 +177,16 @@ vec3 calcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewPos, vec2 uv)
 }
 
 
+// vec3 remapColors(vec3 input sampler2D pallete, int palleteSize)
+// {
+
+//     for(int i = 0; i < palleteSize; i++)
+//     {
+//         float luminosity = (input.r + input.g + input.b) / 3.0f; 
+//         float mask = smoothstep()
+//     }
+// }
+
 
 vec3 ACESFilmTonemap(vec3 x) {
     float a = 2.51;

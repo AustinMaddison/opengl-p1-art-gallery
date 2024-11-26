@@ -34,8 +34,8 @@ float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
-const float collisionPadding = 0.1;            
-glm::vec4 cameraCollisonBounds(glm::vec4(-1, 1, -1, 1) * (roomSize * 0.5f) * (1.0f - collisionPadding));
+const float collisionPadding = 0.1;
+glm::vec4 cameraCollisonBounds(glm::vec4(-1, 1, -1, 1)* (roomSize * 0.5f)* (1.0f - collisionPadding));
 
 
 /* ---------------------------------- Time ---------------------------------- */
@@ -50,9 +50,9 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 unsigned int loadTexture(const char* path);
-unsigned int loadTexture(char const* path, int *width, int *height);
+unsigned int loadTexture(char const* path, int* width, int* height);
 void processCameraCollision(Camera* camera);
-void setLights(std::vector<glm::vec3> *lightPositions, Shader *shader);
+void setLights(std::vector<glm::vec3>* lightPositions, Shader* shader);
 
 enum SampleSpace {
     TEXCOORDS,
@@ -72,7 +72,7 @@ struct Painting {
 
         artDiffuseTexture = loadTexture(diffusePath, &width, &height);
         artSpecularTexture = loadTexture(specularPath, &width, &height);
-        size = glm::vec3((float)width/64.0f, (float)height/64.0f, 1.0f);
+        size = glm::vec3((float)width / 64.0f, (float)height / 64.0f, 1.0f);
 
         std::cout << size.x << " " << size.y << '\n';
     }
@@ -89,7 +89,7 @@ int main()
 
 
     /* ---------------------------- Create Materials ---------------------------- */
-    
+
     // Floor Material
     unsigned int floorDiffuseTexture = loadTexture("resources/textures/enviroment/floor.jpg");
     unsigned int floorSpecularTexture = loadTexture("resources/textures/enviroment/floor.jpg");
@@ -116,8 +116,8 @@ int main()
     wallShader.setVec3("material.translate", glm::vec3(0.0f));
 
     // Ceiling Material
-    unsigned int ceilingDiffuseTexture = loadTexture("resources/textures/environment/ceiling.jpg");
-    unsigned int ceilingSpecularTexture = loadTexture("resources/textures/environment/ceiling.jpg");
+    unsigned int ceilingDiffuseTexture = loadTexture("resources/textures/enviroment/ceiling.jpg");
+    unsigned int ceilingSpecularTexture = loadTexture("resources/textures/enviroment/ceiling.jpg");
     Shader ceilingShader("src/shaders/default.vert", "src/shaders/default.frag");
     ceilingShader.use();
     ceilingShader.setInt("material.diffuse", 0);
@@ -129,12 +129,12 @@ int main()
 
     // Painting
     std::vector<Painting> paintings;
-    paintings.push_back( Painting("resources/textures/art/starry-night.jpg") );
-    paintings.push_back( Painting("resources/textures/art/micheal.jpg")      );
-    paintings.push_back( Painting("resources/textures/art/mona-lisa.jpg")    );
-    paintings.push_back( Painting("resources/textures/art/girl.jpg")         );
-    paintings.push_back( Painting("resources/textures/art/wave.jpg"));
-    
+    paintings.push_back(Painting("resources/textures/art/starry-night.jpg"));
+    paintings.push_back(Painting("resources/textures/art/micheal.jpg"));
+    paintings.push_back(Painting("resources/textures/art/mona-lisa.jpg"));
+    //paintings.push_back(Painting("resources/textures/art/girl.jpg"));
+    paintings.push_back(Painting("resources/textures/art/wave.jpg"));
+
     Shader paintingShader("src/shaders/default.vert", "src/shaders/default.frag");
     paintingShader.use();
     paintingShader.setInt("material.diffuse", 0);
@@ -214,11 +214,11 @@ int main()
     /* ----------------------------- Light Positions ---------------------------- */
 
     std::vector<glm::vec3> LightPositions = {
-        glm::vec3(  0.0f, roomSize * roomHeightFactor, 0.0f),
-        glm::vec3(  roomSize * 0.45, roomSize * roomHeightFactor, 0.0f),
-        glm::vec3( -roomSize * 0.45, roomSize * roomHeightFactor,  0.0f),
-        glm::vec3(  0.0f, roomSize * roomHeightFactor,  roomSize * 0.45),
-        glm::vec3(  0.0f, roomSize * roomHeightFactor,  -roomSize * 0.45)
+        glm::vec3(0.0f, roomSize * roomHeightFactor, 0.0f),
+        glm::vec3(roomSize * 0.45, roomSize * roomHeightFactor, 0.0f),
+        glm::vec3(-roomSize * 0.45, roomSize * roomHeightFactor,  0.0f),
+        glm::vec3(0.0f, roomSize * roomHeightFactor,  roomSize * 0.45),
+        glm::vec3(0.0f, roomSize * roomHeightFactor,  -roomSize * 0.45)
     };
 
 
@@ -231,7 +231,7 @@ int main()
     glBindVertexArray(cubeVAO);
     glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
-    
+
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 
@@ -241,7 +241,7 @@ int main()
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(1);
-    
+
 
     // Plane
     unsigned int planeVAO, planeVBO;
@@ -285,20 +285,20 @@ int main()
         /* -------------------------------------------------------------------------- */
         /*                                Render Scene                                */
         /* -------------------------------------------------------------------------- */
-        
+
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 model;
-        glm::mat4 tranMat; 
-        glm::mat4 rotMat; 
-        glm::mat4 scaMat; 
+        glm::mat4 tranMat;
+        glm::mat4 rotMat;
+        glm::mat4 scaMat;
 
 
         /* ---------------------------------- Floor --------------------------------- */
         model = glm::mat4(1.0f);
         model = glm::scale(model, glm::vec3(roomSize));
         floorShader.use();
-        floorShader.setMat4("model", model );
+        floorShader.setMat4("model", model);
         floorShader.setMat4("view", view);
         floorShader.setMat4("projection", projection);
         floorShader.setVec3("viewPos", camera.Position);
@@ -315,11 +315,11 @@ int main()
 
         /* --------------------------------- Ceiling -------------------------------- */
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0, roomSize*roomHeightFactor, 0.0)); 
+        model = glm::translate(model, glm::vec3(0.0, roomSize * roomHeightFactor, 0.0));
         model = glm::scale(model, glm::vec3(roomSize));
         model = glm::rotate(model, glm::radians(-180.0f), glm::vec3(1, 0, 0));
         ceilingShader.use();
-        ceilingShader.setMat4("model", model );
+        ceilingShader.setMat4("model", model);
         ceilingShader.setMat4("view", view);
         ceilingShader.setMat4("projection", projection);
         ceilingShader.setVec3("viewPos", camera.Position);
@@ -342,22 +342,22 @@ int main()
         glBindTexture(GL_TEXTURE_2D, wallDiffuseTexture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, wallSpecularTexture);
-        
+
         wallShader.setMat4("view", view);
         wallShader.setMat4("projection", projection);
         wallShader.setVec3("viewPos", camera.Position);
         setLights(&LightPositions, &wallShader);
 
 
-        tranMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, roomSize*roomHeightFactor, roomSize)*0.5f); 
-        rotMat = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1, 0, 0)); 
-        scaMat = glm::scale(glm::mat4(1.0f), glm::vec3(roomSize, roomSize, roomSize*roomHeightFactor));
+        tranMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, roomSize * roomHeightFactor, roomSize) * 0.5f);
+        rotMat = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1, 0, 0));
+        scaMat = glm::scale(glm::mat4(1.0f), glm::vec3(roomSize, roomSize, roomSize * roomHeightFactor));
         model = tranMat * rotMat * scaMat;
-        
-        for(int i = 0; i < 4; i++)
+
+        for (int i = 0; i < 4; i++)
         {
-            wallShader.setMat4("model",  glm::rotate(glm::mat4(1.0f), glm::radians(90.0f * i), glm::vec3(0, 1, 0)) * model);
-            wallShader.setInt("material.sampleSpace", i%2==0 ? SampleSpace::XY : SampleSpace::ZY );
+            wallShader.setMat4("model", glm::rotate(glm::mat4(1.0f), glm::radians(90.0f * i), glm::vec3(0, 1, 0)) * model);
+            wallShader.setInt("material.sampleSpace", i % 2 == 0 ? SampleSpace::XY : SampleSpace::ZY);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
 
@@ -372,10 +372,10 @@ int main()
         paintingShader.setVec3("viewPos", camera.Position);
         setLights(&LightPositions, &paintingShader);
 
-        tranMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, roomSize*roomHeightFactor, roomSize*0.99)*0.5f); 
-        rotMat = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1, 0, 0)); 
+        tranMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, roomSize * roomHeightFactor, roomSize * 0.99) * 0.5f);
+        rotMat = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1, 0, 0));
 
-        for(int i = 0; i < 5; i++)
+        for (int i = 0; i < 4; i++)
         {
             Painting paintingCurr = paintings[i];
             glActiveTexture(GL_TEXTURE0);
@@ -383,19 +383,19 @@ int main()
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, paintingCurr.artSpecularTexture);
 
-            scaMat = glm::scale(glm::mat4(1.f), paintingCurr.size*2.0f);
+            scaMat = glm::scale(glm::mat4(1.f), paintingCurr.size * 2.0f);
             model = tranMat * scaMat * rotMat;
             model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f * i), glm::vec3(0, 1, 0)) * model;
-            
+
 
             paintingShader.setMat4("model", model);
-            
+
             paintingShader.setInt("material.sampleSpace", SampleSpace::TEXCOORDS);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
 
         glBindVertexArray(0);
-        
+
         glfwSwapBuffers(mainWindow);
         glfwPollEvents();
     }
@@ -405,44 +405,44 @@ int main()
     return 0;
 }
 
-void setLights(std::vector<glm::vec3> *lightPositions, Shader *shader)
+void setLights(std::vector<glm::vec3>* lightPositions, Shader* shader)
 {
     float t = glfwGetTime();
-    glm::vec3 w1( cos(t+0.2) , sin(t+0.86), cos(t+0.35) );
-    glm::vec3 w2( cos(t*2+0.54) , cos(t*2+0.32), cos(t*2+0.83) );
-    glm::vec3 w3( cos(t*2*2+0.2) , sin(t*2*2+0.86), cos(t*2*2+0.35) );
-    glm::vec3 noise = w1*0.33f + w2*0.33f + w3*0.33f;
+    glm::vec3 w1(cos(t + 0.2), sin(t + 0.86), cos(t + 0.35));
+    glm::vec3 w2(cos(t * 2 + 0.54), cos(t * 2 + 0.32), cos(t * 2 + 0.83));
+    glm::vec3 w3(cos(t * 2 * 2 + 0.2), sin(t * 2 * 2 + 0.86), cos(t * 2 * 2 + 0.35));
+    glm::vec3 noise = w1 * 0.33f + w2 * 0.33f + w3 * 0.33f;
 
     /* ------------------------------- Floor Light ------------------------------ */
     shader->setVec3("lights[0].position", glm::vec3(0.0f, 2.0f, 0.0f));
     shader->setVec3("lights[0].direction", glm::vec3(0.0f, -1.0f, 0.0f) + noise * 0.02f);
-    shader->setFloat("lights[0].cutOff", glm::cos(glm::radians(20.f )));
-    shader->setFloat("lights[0].outerCutOff", glm::cos(glm::radians(75.f - (sin(glfwGetTime()* 2) + 1) * 0.5)));
+    shader->setFloat("lights[0].cutOff", glm::cos(glm::radians(20.f)));
+    shader->setFloat("lights[0].outerCutOff", glm::cos(glm::radians(75.f - (sin(glfwGetTime() * 2) + 1) * 0.5)));
     shader->setVec3("lights[0].ambient", 0.1f, 0.1f, 0.2f);
-    shader->setVec3("lights[0].diffuse", 0.60f*1.0f, 0.50f*1.0f, 0.30f*1.0f);
-    shader->setVec3("lights[0].specular", 1.0f*2.0f, 1.0f*2.0f, 1.0f*2.0f);
+    shader->setVec3("lights[0].diffuse", 0.60f * 1.0f, 0.50f * 1.0f, 0.30f * 1.0f);
+    shader->setVec3("lights[0].specular", 1.0f * 2.0f, 1.0f * 2.0f, 1.0f * 2.0f);
     shader->setFloat("lights[0].constant", 1.0f);
     shader->setFloat("lights[0].linear", 0.08f);
     shader->setFloat("lights[0].quadratic", 0.016f);
 
     /* ----------------------------- Painting Lights ---------------------------- */
-    for(int i = 1; i < lightPositions->size(); i++)
+    for (int i = 1; i < lightPositions->size(); i++)
     {
         std::string idx = "lights[" + std::to_string(i) + "]";
 
-        shader->setVec3(idx+".position", lightPositions->at(i) + glm::vec3(0.0f, 0.1f, 0.0f));
+        shader->setVec3(idx + ".position", lightPositions->at(i) + glm::vec3(0.0f, 0.1f, 0.0f));
 
-        glm::vec3 direction = glm::normalize( glm::vec3(0.f, -5.f, 0.f) - glm::normalize(lightPositions->at(i))*glm::vec3(-1, 0, -1) ); 
+        glm::vec3 direction = glm::normalize(glm::vec3(0.f, -5.f, 0.f) - glm::normalize(lightPositions->at(i)) * glm::vec3(-1, 0, -1));
 
-        shader->setVec3(idx+".direction", direction + noise * 0.01f);
-        shader->setFloat(idx+".cutOff", glm::cos(glm::radians(0.f )));
-        shader->setFloat(idx+".outerCutOff", glm::cos(glm::radians(35.f - (sin(glfwGetTime()* 2) + 1) * 0.5)));
-        shader->setVec3(idx+".ambient", 0.0f, 0.0f, 0.0f);
-        shader->setVec3(idx+".diffuse", 0.60f*0.9f, 0.50f*0.9f, 0.30f*0.9f);
-        shader->setVec3(idx+".specular", 1.0f*1.2f, 1.0f*1.2f, 1.0f*1.2f);
-        shader->setFloat(idx+".constant", 0.3f);
-        shader->setFloat(idx+".linear", 0.04f);
-        shader->setFloat(idx+".quadratic", 0.032f);
+        shader->setVec3(idx + ".direction", direction + noise * 0.01f);
+        shader->setFloat(idx + ".cutOff", glm::cos(glm::radians(0.f)));
+        shader->setFloat(idx + ".outerCutOff", glm::cos(glm::radians(35.f - (sin(glfwGetTime() * 2) + 1) * 0.5)));
+        shader->setVec3(idx + ".ambient", 0.0f, 0.0f, 0.0f);
+        shader->setVec3(idx + ".diffuse", 0.60f * 0.9f, 0.50f * 0.9f, 0.30f * 0.9f);
+        shader->setVec3(idx + ".specular", 1.0f * 1.2f, 1.0f * 1.2f, 1.0f * 1.2f);
+        shader->setFloat(idx + ".constant", 0.3f);
+        shader->setFloat(idx + ".linear", 0.04f);
+        shader->setFloat(idx + ".quadratic", 0.032f);
     }
 }
 
@@ -451,7 +451,7 @@ void processCameraCollision(Camera* camera)
 {
     // x-min
     if (camera->Position.x < cameraCollisonBounds.x)
-       camera->Position.x = cameraCollisonBounds.x;
+        camera->Position.x = cameraCollisonBounds.x;
     // x-max
     if (camera->Position.x > cameraCollisonBounds.y)
         camera->Position.x = cameraCollisonBounds.y;
@@ -494,7 +494,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     }
 
     float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; 
+    float yoffset = lastY - ypos;
 
     lastX = xpos;
     lastY = ypos;
@@ -603,7 +603,7 @@ unsigned int loadTexture(char const* path)
     return textureID;
 }
 
-unsigned int loadTexture(char const* path, int *width, int *height)
+unsigned int loadTexture(char const* path, int* width, int* height)
 {
     unsigned int textureID;
     glGenTextures(1, &textureID);
