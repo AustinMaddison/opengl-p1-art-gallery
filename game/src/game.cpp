@@ -102,7 +102,7 @@ int main()
     floorShader.setVec3("material.scale", glm::vec3(1.0f));
     floorShader.setVec3("material.translate", glm::vec3(0.0f));
 
-    // Floor Material
+    // Wall Material
     unsigned int wallDiffuseTexture = loadTexture("resources/textures/enviroment/wall.jpg");
     unsigned int wallSpecularTexture = loadTexture("resources/textures/enviroment/wall.jpg");
     Shader wallShader("src/shaders/default.vert", "src/shaders/default.frag");
@@ -114,6 +114,18 @@ int main()
     // wallShader.setVec3("material.scale", glm::vec3(0.5f, 0.75f, 0.5f));
     wallShader.setVec3("material.scale", glm::vec3(1.f));
     wallShader.setVec3("material.translate", glm::vec3(0.0f));
+
+    // Ceiling Material
+    unsigned int ceilingDiffuseTexture = loadTexture("resources/textures/environment/ceiling.jpg");
+    unsigned int ceilingSpecularTexture = loadTexture("resources/textures/environment/ceiling.jpg");
+    Shader ceilingShader("src/shaders/default.vert", "src/shaders/default.frag");
+    ceilingShader.use();
+    ceilingShader.setInt("material.diffuse", 0);
+    ceilingShader.setInt("material.specular", 1);
+    ceilingShader.setFloat("material.shininess", 16.0f);
+    ceilingShader.setInt("material.sampleSpace", 3);
+    ceilingShader.setVec3("material.scale", glm::vec3(1.0f));
+    ceilingShader.setVec3("material.translate", glm::vec3(0.0f));
 
     // Painting
     std::vector<Painting> paintings;
@@ -305,18 +317,18 @@ int main()
         model = glm::translate(model, glm::vec3(0.0, roomSize*roomHeightFactor, 0.0)); 
         model = glm::scale(model, glm::vec3(roomSize));
         model = glm::rotate(model, glm::radians(-180.0f), glm::vec3(1, 0, 0));
-        floorShader.use();
-        floorShader.setMat4("model", model );
-        floorShader.setMat4("view", view);
-        floorShader.setMat4("projection", projection);
-        floorShader.setVec3("viewPos", camera.Position);
-        setLights(&LightPositions, &floorShader);
+        ceilingShader.use();
+        ceilingShader.setMat4("model", model );
+        ceilingShader.setMat4("view", view);
+        ceilingShader.setMat4("projection", projection);
+        ceilingShader.setVec3("viewPos", camera.Position);
+        setLights(&LightPositions, &ceilingShader);
 
         glBindVertexArray(planeVAO);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, floorDiffuseTexture);
+        glBindTexture(GL_TEXTURE_2D, ceilingDiffuseTexture);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, floorSpecularTexture);
+        glBindTexture(GL_TEXTURE_2D, ceilingSpecularTexture);
 
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
