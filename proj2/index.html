@@ -42,6 +42,7 @@
           height="1">
         </a-plane>
         <a-entity
+          id="greenCannon"
           gltf-model="#cannonModel"
           position="0 0 0"
           rotation="0 -90 0"
@@ -68,12 +69,22 @@
           height="1">
         </a-plane>
         <a-entity
+          id="blueCannon"
           gltf-model="#cannonModel"
           position="0 0 0"
           rotation="0 -90 0"
           scale="0.8 0.8 0.8">
         </a-entity>
       </a-marker>
+
+      <!-- CannonBall -->
+      <a-sphere
+              position="0 0 -1"
+              id="cannonball"
+              radius="0.1"
+              color="#A9A9A9"
+              visible="false">
+      </a-sphere>
 
       <a-entity camera></a-entity>
     </a-scene>
