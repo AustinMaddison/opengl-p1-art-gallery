@@ -1,5 +1,16 @@
 # The Art Gallery
 
+### Screenshots
+
+
+### How to compile?
+```
+
+```
+
+### How to run built binary?
+
+
 ### Features
 
 #### Procedurally Transformed Paintings From Image File
@@ -23,6 +34,8 @@
 #### Deffered Rendering
 
 #### UI
+##### Font Rendering Using SDF Text Atlas
+
 
 
 
