@@ -54,7 +54,7 @@ https://github.com/user-attachments/assets/b7898958-2cd3-4d9b-9a16-14eeee1a29b0
 
 ---
 
-### Future Features
+### Future Plans
 
 #### Deffered Rendering
 So we can calculate lighting once. Also it would also force me to create framebuffer and render targets. Which would make it easier to facilitate post-processing and ui in a neater way.
