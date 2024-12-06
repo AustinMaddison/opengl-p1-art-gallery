@@ -16,6 +16,8 @@
 
 #### NPR Diffuse-Specular Lambert Model
 
+---
+
 ### Pending Features
 
 #### Deffered Rendering
