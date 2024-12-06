@@ -29,8 +29,6 @@ Run the **windows-64bit** binary in `/game/builds/Release/The Art Gallery.exe`.
 ---
 ### Features
 
-#### Procedural Enviroment Geometry
-
 #### Academy Color Encoding System (ACES) Tonemapping
 - Perceptual light values falloff in a natural looking and pleasing way.
 
