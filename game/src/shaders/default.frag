@@ -229,5 +229,12 @@ void main()
 
 
     FragColor = vec4(color, 1.0);
-    // FragColor = vec4(vec3(1.0)*d, 1.0);
 }
+
+
+
+// void main()
+// {
+//   // FragColor = vec4(normalize(viewPos - FragPos), 1.0f);          
+//   FragColor = vec4(normalize(Normal) -normalize(viewPos - FragPos) , 1.0f);          
+// }

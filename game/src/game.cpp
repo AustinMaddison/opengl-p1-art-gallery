@@ -21,7 +21,7 @@
 
 const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
-const char* WINDOW_NAME = "Art Gallery";
+const char* WINDOW_NAME = "The Art Gallery";
 
 /* ---------------------------------- Room ---------------------------------- */
 const float roomSize = 10.0f;

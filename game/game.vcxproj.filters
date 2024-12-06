@@ -35,7 +35,9 @@
     <None Include="src\shaders\default.vert">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="src\shaders\default.frag" />
+    <None Include="src\shaders\default.frag">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stb_image.h">
