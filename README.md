@@ -1,7 +1,7 @@
-# The Art Gallery
 
-### Screenshots
+![d](https://github.com/user-attachments/assets/0017470a-49a8-4ddc-8074-5cdd5477095b)
 
+---
 
 ### How to compile and run?
 Open the solution `final-project.sln` file using **Visual Studio 2022**.
@@ -26,13 +26,16 @@ Compile and run project `game.vcxproj` which will compile and run  `/game/builds
 ### How to run built binary?
 Run the **windows-64bit** binary in `/game/builds/Release/The Art Gallery.exe`.
 
+---
 ### Features
 
-#### Procedural Enviroment Creation
+#### Procedural Enviroment Geometry
 
 #### Academy Color Encoding System (ACES) Tonemapping
+- Perceptual light values falloff in a natural looking and pleasing way.
 
 #### World Space TexCoords For Enviromental Textures
+- This allowed for easy texturing. Additionally we could use sample 3D noise to break up repetition in the textuers by mixing different tones without producing seams.
 
 #### Spotlight Lights
 ![a](https://github.com/user-attachments/assets/e4bfa11e-4ffe-4505-a5c3-28477a0a8668)
@@ -42,8 +45,6 @@ https://github.com/user-attachments/assets/b7898958-2cd3-4d9b-9a16-14eeee1a29b0
 
 #### Pixelated Lighting
 ![c](https://github.com/user-attachments/assets/8648eff2-28ed-4d8b-9f46-383296ed6a74)
-
-
 
 #### NPR Diffuse-Specular Phong Model
 ![b](https://github.com/user-attachments/assets/fd494b52-69d1-4766-8117-cd6c97b6fba1)
