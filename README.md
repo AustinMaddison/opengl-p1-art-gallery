@@ -28,19 +28,28 @@ Run the **windows-64bit** binary in `/game/builds/Release/The Art Gallery.exe`.
 
 ### Features
 
-#### Procedurally Transformed Paintings From Image File
-
-#### Flickering Lights
+#### Procedural Enviroment Creation
 
 #### Academy Color Encoding System (ACES) Tonemapping
 
 #### World Space TexCoords For Enviromental Textures
 
 #### Spotlight Lights
+![a](https://github.com/user-attachments/assets/e4bfa11e-4ffe-4505-a5c3-28477a0a8668)
+
+#### Flickering Lights
+https://github.com/user-attachments/assets/b7898958-2cd3-4d9b-9a16-14eeee1a29b0
 
 #### Pixelated Lighting
+![c](https://github.com/user-attachments/assets/8648eff2-28ed-4d8b-9f46-383296ed6a74)
 
-#### NPR Diffuse-Specular Lambert Model
+
+
+#### NPR Diffuse-Specular Phong Model
+![b](https://github.com/user-attachments/assets/fd494b52-69d1-4766-8117-cd6c97b6fba1)
+
+
+
 
 ---
 
@@ -57,12 +66,5 @@ For example, tonemapping is being done at a object level when it should be done 
 
 ##### Font rendering using SDF Font Atlas. Thought of making tooltips for what painting you are looking at.
 
-This technique allows for anti aliasing that is resolution agnostic, since over or under sampling cannout occur since we are evaluating the distance from the closest surface. Also allows for font styles such as producing soft shadows and outlines easily.
 ![font](https://github.com/user-attachments/assets/30cfe107-ad87-49d8-a129-b54b03296cbc)
-
-
-##### Font Rendering Using SDF Text Atlas
-
-
-
-
+This technique allows for  alias free type, since over or under sampling cannot occur due the propperties of decoding distance fields into shape. Also allows for font styles such as producing soft shadows and outlines easily.
