@@ -21,7 +21,7 @@ Open the solution `final-project.sln` file using **Visual Studio 2022**.
 │  ├──  resources
 │  └──  src
 ```
-Compile and run project `game.vcxproj` which will compile and run  `/game/builds/Release/The Art Gallery.exe`.
+Compile and run project `game.vcxproj`, which will produce and execute `/game/builds/Release/The Art Gallery.exe`.
 
 ### How to run built binary?
 Run the **windows-64bit** binary in `/game/builds/Release/The Art Gallery.exe`.
