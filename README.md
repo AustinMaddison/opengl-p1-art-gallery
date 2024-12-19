@@ -33,16 +33,24 @@ Compile and run project `game.vcxproj`, which will produce and execute `/game/bu
 - This allowed for easy texturing. Additionally it allowed us to sample 3D noise to subtly break up repetition in the material colors by mixing different tones without producing seams.
 
 #### Spotlight Lights
-![a](https://github.com/user-attachments/assets/e4bfa11e-4ffe-4505-a5c3-28477a0a8668)
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/e4bfa11e-4ffe-4505-a5c3-28477a0a8668">
+</p>
+
 
 #### Flickering Lights
 https://github.com/user-attachments/assets/b7898958-2cd3-4d9b-9a16-14eeee1a29b0
 
 #### Pixelated Lighting
-![c](https://github.com/user-attachments/assets/8648eff2-28ed-4d8b-9f46-383296ed6a74)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/8648eff2-28ed-4d8b-9f46-383296ed6a74">
+</p>
 
 #### NPR Diffuse-Specular Phong Model
-![b](https://github.com/user-attachments/assets/fd494b52-69d1-4766-8117-cd6c97b6fba1)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/fd494b52-69d1-4766-8117-cd6c97b6fba1">
+</p>
 
 
 
