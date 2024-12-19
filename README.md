@@ -30,7 +30,7 @@ Compile and run project `game.vcxproj`, which will produce and execute `/game/bu
 - Perceptual light values falloff in a natural looking and pleasing way.
 
 #### World Space TexCoords For Enviromental Textures
-- This allowed for easy texturing. Additionally we could use sample 3D noise to break up repetition in the textuers by mixing different tones without producing seams.
+- This allowed for easy texturing. Additionally it allowed us to sample 3D noise to subtly break up repetition in the material colors by mixing different tones without producing seams.
 
 #### Spotlight Lights
 ![a](https://github.com/user-attachments/assets/e4bfa11e-4ffe-4505-a5c3-28477a0a8668)
